@@ -1,22 +1,28 @@
-import { Create } from '../api'
+import { Create, Update } from '../api'
 
 export default class Note {
+  id?: string
   title: string
   body: string
   type: string
   keywords: string | null
   reference: string | null
 
-  constructor() {
-    this.title = ''
-    this.body = ''
-    this.type = ''
-    this.keywords = null
-    this.reference = null
+  constructor(id?: string, title?: string, body?: string, type?: string, keywords?: string | null, reference?: string | null) {
+    this.id = id
+    this.title = title ?? ''
+    this.body = body ?? ''
+    this.type = type ?? ''
+    this.keywords = keywords ?? null
+    this.reference = reference ?? null
   }
 
-  save() {
+  create() {
     return Create(this)
+  }
+
+  update() {
+    return Update(this)
   }
 
   clear() {

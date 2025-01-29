@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import Note from '../models/Note.ts'
+import { onSuccess, onFailure } from '../helpers/responses.ts'
 
 const note = ref(new Note())
 
-async function handleSubmit() {
-  const { error, message } = await note.value.save()
-  alert(message)
-  if (!error) note.value.clear()
+function handleSubmit() {
+  note.value.create()
+    .then(onSuccess)
+    .catch(onFailure)
 }
 
 </script>
@@ -23,7 +24,7 @@ async function handleSubmit() {
       <input id="keywords" class="form__input form__input_border-bottom" type="text" placeholder="programming, self-development, health" v-model="note.keywords">
       <label class="form__label" for="reference">Reference</label>
       <input id="reference" class="form__input form__input_border-bottom" type="text" placeholder="(Optional)" v-model="note.reference">
-      <button class="form__button" type="submit">Save</button>
+      <button class="button" type="submit">Save</button>
     </fieldset>
   </form>
 </template>
@@ -76,20 +77,5 @@ async function handleSubmit() {
   border: none;
   outline: none;
   background-color: transparent;
-}
-.form__button {
-  margin: 0 auto;
-  height: 24px;
-  width: 72px;
-  border: none;
-  border-radius: 2px;
-  display: block;
-  background-color: #333;
-  color: white;
-  cursor: pointer;
-}
-.form__button:disabled {
-  background-color: #AAA;
-  cursor: not-allowed;
 }
 </style>
