@@ -1,15 +1,15 @@
 import { Create, Update } from '../api'
 
 export default class Note {
-  id?: string
+  id: string
   title: string
   body: string
   type: string
   keywords: string | null
   reference: string | null
 
-  constructor(id?: string, title?: string, body?: string, type?: string, keywords?: string | null, reference?: string | null) {
-    this.id = id
+  constructor({ id, title, body, type, keywords, reference }: { id?: string, title?: string, body?: string, type?: string, keywords?: string | null, reference?: string | null}) {
+    this.id = id ?? ''
     this.title = title ?? ''
     this.body = body ?? ''
     this.type = type ?? ''

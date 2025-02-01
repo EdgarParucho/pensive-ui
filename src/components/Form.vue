@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import Note from '../models/Note.ts'
 import { onSuccess, onFailure } from '../helpers/responses.ts'
 
-const note = ref(new Note())
+const note = ref(new Note({}))
 
 function handleSubmit() {
   note.value.create()
