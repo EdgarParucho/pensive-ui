@@ -1,7 +1,7 @@
 import { Create, Update } from '../api'
 
 export default class Note {
-  id: string
+  id: string | undefined
   title: string
   body: string
   type: string
@@ -9,7 +9,7 @@ export default class Note {
   reference: string | null
 
   constructor({ id, title, body, type, keywords, reference }: { id?: string, title?: string, body?: string, type?: string, keywords?: string | null, reference?: string | null}) {
-    this.id = id ?? ''
+    this.id = id ?? undefined
     this.title = title ?? ''
     this.body = body ?? ''
     this.type = type ?? ''
@@ -17,8 +17,8 @@ export default class Note {
     this.reference = reference ?? null
   }
 
-  create() {
-    return Create(this)
+  create(token: string) {
+    return Create(this, token)
   }
 
   update() {

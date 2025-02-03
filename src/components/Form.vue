@@ -1,55 +1,71 @@
-<script setup lang="ts">
+<script setup lang='ts'>
 import { ref } from 'vue'
+import { useAuth0 } from '@auth0/auth0-vue'
+import { alertOnSuccess, alertOnFailure } from '../helpers/responses.ts'
 import Note from '../models/Note.ts'
-import { onSuccess, onFailure } from '../helpers/responses.ts'
+
+const { getAccessTokenSilently } = useAuth0()
+const emit = defineEmits(['close-form'])
 
 const note = ref(new Note({}))
 
-function handleSubmit() {
-  note.value.create()
-    .then(onSuccess)
-    .catch(onFailure)
+async function handleSubmit() {
+  try {
+    const token = await getAccessTokenSilently()
+    await note.value.create(token)
+    note.value.clear()
+    alertOnSuccess()
+  } catch (error) {
+    alertOnFailure(error as Error)
+  }
 }
 
 </script>
 
 <template>
   <form class="form" @submit.prevent="handleSubmit">
+    <button class="button button_ml-auto" type="button" @click="emit('close-form')">Close</button>
     <fieldset class="form__fieldset">
-      <input id="title" class="form__input form__input_lg" type="text" placeholder="New Record" required v-model="note.title">
-      <textarea id="body" class="form__textarea" placeholder="Type the content of your record here." required v-model="note.body"></textarea>
-      <label class="form__label" for="type">Type</label>
-      <input id="type" class="form__input form__input_border-bottom" type="text" v-model="note.type">
-      <label class="form__label" for="keywords">Keywords (comma separated)</label>
-      <input id="keywords" class="form__input form__input_border-bottom" type="text" placeholder="programming, self-development, health" v-model="note.keywords">
-      <label class="form__label" for="reference">Reference</label>
-      <input id="reference" class="form__input form__input_border-bottom" type="text" placeholder="(Optional)" v-model="note.reference">
-      <button class="button" type="submit">Save</button>
+      <div class="form__area">
+        <input id="title" class="form__input form__input_lg" type="text" placeholder="New Record" required v-model="note.title">
+        <textarea id="body" class="form__textarea" placeholder="Type the content of your record here." required v-model="note.body"></textarea>
+      </div>
+      <div class="form__area">
+        <label class="form__label" for="type">Type</label>
+        <input id="type" class="form__input form__input_border-bottom" type="text" v-model="note.type">
+        <label class="form__label" for="keywords">Keywords (comma separated)</label>
+        <input id="keywords" class="form__input form__input_border-bottom" type="text" placeholder="programming, self-development, health" v-model="note.keywords">
+        <label class="form__label" for="reference">Reference</label>
+        <input id="reference" class="form__input form__input_border-bottom" type="text" placeholder="(Optional)" v-model="note.reference">
+        <button class="button" type="submit">Save</button>
+      </div>
     </fieldset>
   </form>
 </template>
 
 <style scoped>
 .form {
-  padding: 2px;
-  border: solid 1px #AAA;
-  display: grid;
-  align-content: center;
-  place-items: center;
+  position: absolute;
+  top: 0;
+  height: 100vh;
+  width: 100vw;
 }
 .form__fieldset {
-  margin: 0 auto;
-  padding: 4px;
   border: none;
   width: 100%;
-  height: 100%;
+  display: flex;
+}
+.form__area {
+  width: 100%;
+  display: grid;
+  background-color: darkslategray;
 }
 .form__label {
   font-size: .7rem;
   font-weight: bold;
   display: block;
   margin-bottom: 0.5rem;
-  color: #555;
+  color: var(--lightest);
 }
 .form__input {
   width: 100%;
@@ -57,6 +73,7 @@ function handleSubmit() {
   border: none;
   outline: none;
   background-color: transparent;
+  color: var(--light);
 }
 .form__input_lg {
   font-size: 2rem;
@@ -66,9 +83,7 @@ function handleSubmit() {
 }
 .form__input::placeholder {
   font-style: italic;
-}
-.form__textarea::placeholder {
-  font-style: italic;
+  color: var(--neutral);
 }
 .form__textarea {
   width: 100%;
@@ -77,5 +92,11 @@ function handleSubmit() {
   border: none;
   outline: none;
   background-color: transparent;
+  color: var(--light);
+  resize: none;
+}
+.form__textarea::placeholder {
+  font-style: italic;
+  color: var(--neutral);
 }
 </style>

@@ -1,3 +1,11 @@
+:root {
+  --dark: #232323;
+  --darkest: #0f0f0f;
+  --light: #f4f4f4;
+  --lightest: #f1f1f1;
+  --neutral: #ccc;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -5,5 +13,6 @@
 }
 
 body {
-  padding: 6px;
+  background-color: var(--darkest);
+  color: var(--light);
 }
