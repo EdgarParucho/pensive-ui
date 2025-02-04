@@ -51,7 +51,7 @@ function closeForm() {
 
     <button
     v-else
-    class="button"
+    class="button button_mx-auto"
     type="button"
     @click="start"
     >Start</button>
@@ -99,7 +99,30 @@ function closeForm() {
   background-color: var(--neutral);
   cursor: not-allowed;
 }
+.button_mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
 .button_ml-auto {
   margin-left: auto;
+}
+.button_w-50 {
+  width: 50%;
+}
+.button_block {
+  display: block;
+  width: 100%;
+}
+.button_absolute {
+  position: absolute;
+}
+.button_top {
+  top: 4px;
+}
+.button_right {
+  right: 4px;
+}
+.button_bottom {
+  align-self: flex-end;
 }
 </style>
