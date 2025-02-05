@@ -21,8 +21,8 @@ export default class Note {
     return Create(this, token)
   }
 
-  update() {
-    return Update(this)
+  update(token: string) {
+    return Update(this, token)
   }
 
   clear() {

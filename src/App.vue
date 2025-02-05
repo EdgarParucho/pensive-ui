@@ -95,18 +95,22 @@ function closeForm() {
   opacity: 0;
 }
 .button {
-  height: 24px;
-  width: 72px;
-  border: none;
+  height: 22px;
+  width: 64px;
+  border: 1px solid var(--dark);
   border-radius: 2px;
   display: block;
   background-color: var(--dark);
   color: var(--light);
   cursor: pointer;
+  transition: .25s;
 }
 .button:disabled {
   background-color: var(--neutral);
   cursor: not-allowed;
+}
+.button:hover {
+  border: 1px solid var(--neutral);
 }
 .button_mx-auto {
   margin-left: auto;
@@ -133,5 +137,21 @@ function closeForm() {
 }
 .button_bottom {
   align-self: flex-end;
+}
+.button_pulse {
+  animation-name: pulse;
+  animation-duration: .7s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+  animation-direction: alternate;
+}
+
+@keyframes pulse {
+  from {
+    background-color: var(--dark);
+  }
+  to {
+    background-color: var(--neutral);
+  }
 }
 </style>

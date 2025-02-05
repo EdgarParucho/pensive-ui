@@ -10,6 +10,7 @@ const { getAccessTokenSilently } = useAuth0()
 const emit = defineEmits(['close-form'])
 
 const note = ref(new Note({}))
+const loading = ref(false)
 const blur = ref(true)
 
 async function handleSubmit() {
@@ -18,6 +19,7 @@ async function handleSubmit() {
     await note.value.create(token)
     note.value.clear()
     alertOnSuccess()
+    emit('close-form')
   } catch (error) {
     alertOnFailure(error as Error)
   }
@@ -47,13 +49,15 @@ function unblur() {
           type="text"
           placeholder="New Record"
           required
-          v-model="note.title">
+          v-model="note.title"
+          autocomplete="off">
           <textarea
           id="body"
           class="form__textarea"
           placeholder="Type the content of your record here."
           required
-          v-model="note.body"></textarea>
+          v-model="note.body"
+          autocomplete="off"></textarea>
         </div>
         <div class="form__section form__section_bl">
           <label class="form__label" for="type">Type</label>
@@ -61,13 +65,15 @@ function unblur() {
           id="type"
           class="form__input form__input_border-bottom form__input_w-25"
           type="text"
-          v-model="note.type">
+          v-model="note.type"
+          autocomplete="off">
           <label class="form__label" for="keywords">Keywords (comma separated)</label>
           <input
           id="keywords"
           class="form__input form__input_border-bottom"
           type="text"
           placeholder="programming, self-development, health"
+          autocomplete="off"
           v-model="note.keywords">
           <label for="reference-type" class="form__label">Reference type</label>
           <select id="reference-type" class="form__input form__input_w-25">
@@ -83,13 +89,16 @@ function unblur() {
           class="form__input form__input_border-bottom"
           type="text"
           placeholder="(Optional)"
-          v-model="note.reference">
+          v-model="note.reference"
+          disabled>
         </div>
       </fieldset>
       <button
       class="button button_w-50 button_ml-auto"
+      :class="{'button_pulse': loading}"
+      :disabled="loading"
       type="submit"
-      >Save</button>
+      >{{ loading ? 'Please wait' : 'Save' }}</button>
     </form>
     <div class="blur-screen" v-if="blur" @keyup.esc="unblur">
       <div>
