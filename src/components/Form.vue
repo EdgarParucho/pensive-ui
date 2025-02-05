@@ -1,8 +1,10 @@
 <script setup lang='ts'>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
 import { alertOnSuccess, alertOnFailure } from '../helpers/responses.ts'
 import Note from '../models/Note.ts'
+
+onMounted(() => document.getElementById('centered-field')?.focus())
 
 const { getAccessTokenSilently } = useAuth0()
 const emit = defineEmits(['close-form'])
@@ -23,82 +25,87 @@ async function handleSubmit() {
 
 function unblur() {
   blur.value = false
+  if (note.value.title == '') document.getElementById('title')?.focus()
+  else document.getElementById('body')?.focus()
 }
 
 </script>
 
 <template>
-  <form class="form" :class="{'form_blur': blur}" @submit.prevent="handleSubmit">
-    <button
-    class="button button_absolute button_right button_top"
-    type="button"
-    @click="emit('close-form')"
-    >Close</button>
-    <fieldset class="form__fieldset">
-      <div class="form__section">
-        <input
-        id="title"
-        class="form__input form__input_lg"
-        type="text"
-        placeholder="New Record"
-        required
-        v-model="note.title">
-        <textarea
-        id="body"
-        class="form__textarea"
-        placeholder="Type the content of your record here."
-        required
-        v-model="note.body"></textarea>
-      </div>
-      <div class="form__section form__section_bl">
-        <label class="form__label" for="type">Type</label>
-        <input
-        id="type"
-        class="form__input form__input_border-bottom form__input_w-25"
-        type="text"
-        v-model="note.type">
-        <label class="form__label" for="keywords">Keywords (comma separated)</label>
-        <input
-        id="keywords"
-        class="form__input form__input_border-bottom"
-        type="text"
-        placeholder="programming, self-development, health"
-        v-model="note.keywords">
-        <label for="reference-type" class="form__label">Reference type</label>
-        <select id="reference-type" class="form__input form__input_w-25">
-          <option value="none" class="form__option">None</option>
-          <option value="book" class="form__option">Book</option>
-          <option value="online-article" class="form__option">Online article</option>
-          <option value="conference" class="form__option">Conference</option>
-          <option value="audiovisual-media" class="form__option">Audiovisual media</option>
-        </select>
-        <label class="form__label" for="reference">Reference</label>
-        <input
-        id="reference"
-        class="form__input form__input_border-bottom"
-        type="text"
-        placeholder="(Optional)"
-        v-model="note.reference">
-      </div>
-    </fieldset>
-    <button
-    class="button button_w-50 button_ml-auto"
-    type="submit"
-    >Save</button>
-  </form>
-  <div class="blur-screen" v-if="blur">
-    <div>
-      <input
-      type="text"
-      placeholder="New note"
-      class="form__input form__input_lg"
-      v-model="note.title"
-      @enter="unblur">
+  <div>
+    <form class="form" :class="{'form_blur': blur}" @submit.prevent="handleSubmit">
       <button
+      class="button button_absolute button_right button_top"
       type="button"
-      class="button button_mx-auto"
-      @click="unblur"
-      >Continue</button>
+      @click="emit('close-form')"
+      >Close</button>
+      <fieldset class="form__fieldset">
+        <div class="form__section">
+          <input
+          id="title"
+          class="form__input form__input_lg"
+          type="text"
+          placeholder="New Record"
+          required
+          v-model="note.title">
+          <textarea
+          id="body"
+          class="form__textarea"
+          placeholder="Type the content of your record here."
+          required
+          v-model="note.body"></textarea>
+        </div>
+        <div class="form__section form__section_bl">
+          <label class="form__label" for="type">Type</label>
+          <input
+          id="type"
+          class="form__input form__input_border-bottom form__input_w-25"
+          type="text"
+          v-model="note.type">
+          <label class="form__label" for="keywords">Keywords (comma separated)</label>
+          <input
+          id="keywords"
+          class="form__input form__input_border-bottom"
+          type="text"
+          placeholder="programming, self-development, health"
+          v-model="note.keywords">
+          <label for="reference-type" class="form__label">Reference type</label>
+          <select id="reference-type" class="form__input form__input_w-25">
+            <option value="none" class="form__option">None</option>
+            <option value="book" class="form__option">Book</option>
+            <option value="online-article" class="form__option">Online article</option>
+            <option value="conference" class="form__option">Conference</option>
+            <option value="audiovisual-media" class="form__option">Audiovisual media</option>
+          </select>
+          <label class="form__label" for="reference">Reference</label>
+          <input
+          id="reference"
+          class="form__input form__input_border-bottom"
+          type="text"
+          placeholder="(Optional)"
+          v-model="note.reference">
+        </div>
+      </fieldset>
+      <button
+      class="button button_w-50 button_ml-auto"
+      type="submit"
+      >Save</button>
+    </form>
+    <div class="blur-screen" v-if="blur" @keyup.esc="unblur">
+      <div>
+        <input
+        type="text"
+        placeholder="New note"
+        id="centered-field"
+        class="form__input form__input_lg"
+        v-model.trim="note.title"
+        @keypress.enter="unblur">
+        <button
+        type="button"
+        class="button button_mx-auto"
+        @click="unblur"
+        >Continue</button>
+      </div>
     </div>
   </div>
 </template>

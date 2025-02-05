@@ -64,13 +64,10 @@ function closeForm() {
     >Read</button>
 
     <button
-    v-if="isAuthenticated"
     class="button"
     type="button"
     @click="openForm"
     >Add</button>
-
-    <Form v-show="formIsOpen" @close-form="closeForm"></Form>
     <ul>
       <li v-for="note in notes" :key="note.id">
         <span>{{ note.title }}</span>
@@ -81,10 +78,22 @@ function closeForm() {
         >Destroy</button>
       </li>
     </ul>
+    <Transition>
+      <Form v-if="formIsOpen" @close-form="closeForm" />
+    </Transition>
   </div>
 </template>
 
 <style>
+
+.v-enter-active,
+.v-leave-active {
+  transition: opacity .5s ease;
+}
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
 .button {
   height: 24px;
   width: 72px;
