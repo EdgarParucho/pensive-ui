@@ -26,6 +26,7 @@ async function handleSubmit() {
 }
 
 function removeBlur() {
+function removeBlur() {
   blur.value = false
   if (note.value.title == '') document.getElementById('title')?.focus()
   else document.getElementById('body')?.focus()
@@ -35,6 +36,7 @@ function removeBlur() {
 
 <template>
   <div class="container">
+  <div class="container">
     <form class="form" :class="{'form_blur': blur}" @submit.prevent="handleSubmit">
       <button
       class="button button_absolute button_right button_top"
@@ -42,63 +44,6 @@ function removeBlur() {
       @click="emit('close-form')"
       >Close</button>
       <fieldset class="form__fieldset">
-<<<<<<< HEAD
-        <div class="form__section">
-          <input
-          id="title"
-          class="form__input form__input_lg"
-          type="text"
-          placeholder="New Record"
-          required
-          v-model="note.title"
-          autocomplete="off">
-          <textarea
-          id="body"
-          class="form__textarea"
-          placeholder="Type the content of your record here."
-          required
-          v-model="note.body"
-          autocomplete="off"></textarea>
-        </div>
-        <div class="form__section form__section_bl">
-          <label class="form__label" for="type">Type</label>
-          <input
-          id="type"
-          class="form__input form__input_border-bottom form__input_w-25"
-          type="text"
-          v-model="note.type"
-          autocomplete="off">
-          <label class="form__label" for="keywords">Keywords (comma separated)</label>
-          <input
-          id="keywords"
-          class="form__input form__input_border-bottom"
-          type="text"
-          placeholder="programming, self-development, health"
-          autocomplete="off"
-          v-model="note.keywords">
-          <label for="reference-type" class="form__label">Reference type</label>
-          <select id="reference-type" class="form__input form__input_w-25">
-            <option value="none" class="form__option">None</option>
-            <option value="book" class="form__option">Book</option>
-            <option value="online-article" class="form__option">Online article</option>
-            <option value="conference" class="form__option">Conference</option>
-            <option value="audiovisual-media" class="form__option">Audiovisual media</option>
-          </select>
-          <label class="form__label" for="reference">Reference</label>
-          <input
-          id="reference"
-          class="form__input form__input_border-bottom"
-          type="text"
-          placeholder="(Optional)"
-          v-model="note.reference"
-          disabled>
-        </div>
-      </fieldset>
-      <button
-      class="button button_w-50 button_ml-auto"
-      :class="{'button_pulse': loading}"
-      :disabled="loading"
-=======
         <input
         id="title"
         class="form__input form__input_text-lg"
@@ -135,10 +80,22 @@ function removeBlur() {
       </fieldset>
       <button
       class="button button_block button_mx-auto"
->>>>>>> 6b1c446 (Updates basic styles and transition on Form.)
       type="submit"
       >{{ loading ? 'Please wait' : 'Save' }}</button>
     </form>
+    <div class="blur-screen" v-if="blur" @keyup.esc="removeBlur">
+      <input
+      type="text"
+      placeholder="New note"
+      id="centered-field"
+      class="form__input form__input_text-lg form__input_border-bottom"
+      v-model.trim="note.title"
+      @keypress.enter="removeBlur">
+      <button
+      type="button"
+      class="button"
+      @click="removeBlur"
+      >Continue</button>
     <div class="blur-screen" v-if="blur" @keyup.esc="removeBlur">
       <input
       type="text"
@@ -161,8 +118,16 @@ function removeBlur() {
 .container {
   height: 100%;
   width: 100%;
+.container {
+  height: 100%;
+  width: 100%;
   position: absolute;
   top: 0;
+  display: grid;
+  place-items: center;
+}
+
+.form {
   display: grid;
   place-items: center;
 }
@@ -177,6 +142,7 @@ function removeBlur() {
 }
 
 .form_blur {
+  filter: blur(4px);
   filter: blur(4px);
 }
 
@@ -242,6 +208,9 @@ function removeBlur() {
   display: flex;
   flex-direction: column;
   position: absolute;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   align-items: center;
   justify-content: center;
   gap: 8px;
