@@ -42,42 +42,46 @@ function closeForm() {
 
 <template>
   <div>
-    <button
-    v-if="isAuthenticated"
-    class="button button_secondary button_ml-auto"
-    type="button"
-    @click="finish"
-    >Logout</button>
-
-    <button
-    v-else
-    class="button button_mx-auto"
-    type="button"
-    @click="start"
-    >Start</button>
-
-    <button
-    v-if="isAuthenticated"
-    class="button"
-    type="button"
-    @click="read"
-    >Read</button>
-
-    <button
-    class="button"
-    type="button"
-    @click="openForm"
-    >Add</button>
-    <ul>
-      <li v-for="note in notes" :key="note.id">
-        <span>{{ note.title }}</span>
+    <Transition>
+      <div v-show="!formIsOpen">
         <button
-        class="button button_secondary"
+        v-if="isAuthenticated"
+        class="button button_secondary button_ml-auto"
         type="button"
-        @click="destroy(note.id as string)"
-        >Destroy</button>
-      </li>
-    </ul>
+        @click="finish"
+        >Logout</button>
+        
+        <button
+        v-else
+        class="button button_mx-auto"
+        type="button"
+        @click="start"
+        >Start</button>
+        
+        <button
+        v-if="isAuthenticated"
+        class="button"
+        type="button"
+        @click="read"
+        >Read</button>
+        
+        <button
+        class="button"
+        type="button"
+        @click="openForm"
+        >Add</button>
+        <ul>
+          <li v-for="note in notes" :key="note.id">
+            <span>{{ note.title }}</span>
+            <button
+            class="button button_secondary"
+            type="button"
+            @click="destroy(note.id as string)"
+            >Destroy</button>
+          </li>
+        </ul>
+      </div>
+    </Transition>
     <Transition>
       <Form v-if="formIsOpen" @close-form="closeForm" />
     </Transition>
@@ -90,10 +94,12 @@ function closeForm() {
 .v-leave-active {
   transition: opacity .5s ease;
 }
+
 .v-enter-from,
 .v-leave-to {
   opacity: 0;
 }
+
 .button {
   height: 22px;
   width: 64px;
@@ -103,38 +109,58 @@ function closeForm() {
   background-color: var(--dark);
   color: var(--light);
   cursor: pointer;
+<<<<<<< HEAD
   transition: .25s;
+=======
+  transition: box-shadow .5s;
+>>>>>>> 6b1c446 (Updates basic styles and transition on Form.)
 }
+
 .button:disabled {
   background-color: var(--neutral);
   cursor: not-allowed;
 }
+<<<<<<< HEAD
 .button:hover {
   border: 1px solid var(--neutral);
 }
+=======
+
+.button:hover {
+  box-shadow: -2px 2px var(--neutral);
+}
+
+>>>>>>> 6b1c446 (Updates basic styles and transition on Form.)
 .button_mx-auto {
   margin-left: auto;
   margin-right: auto;
 }
+
 .button_ml-auto {
   margin-left: auto;
 }
+
 .button_w-50 {
   width: 50%;
 }
+
 .button_block {
   display: block;
   width: 100%;
 }
+
 .button_absolute {
   position: absolute;
 }
+
 .button_top {
   top: 4px;
 }
+
 .button_right {
   right: 4px;
 }
+
 .button_bottom {
   align-self: flex-end;
 }

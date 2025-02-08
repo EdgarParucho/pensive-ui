@@ -25,7 +25,7 @@ async function handleSubmit() {
   }
 }
 
-function unblur() {
+function removeBlur() {
   blur.value = false
   if (note.value.title == '') document.getElementById('title')?.focus()
   else document.getElementById('body')?.focus()
@@ -34,7 +34,7 @@ function unblur() {
 </script>
 
 <template>
-  <div>
+  <div class="container">
     <form class="form" :class="{'form_blur': blur}" @submit.prevent="handleSubmit">
       <button
       class="button button_absolute button_right button_top"
@@ -42,6 +42,7 @@ function unblur() {
       @click="emit('close-form')"
       >Close</button>
       <fieldset class="form__fieldset">
+<<<<<<< HEAD
         <div class="form__section">
           <input
           id="title"
@@ -97,61 +98,91 @@ function unblur() {
       class="button button_w-50 button_ml-auto"
       :class="{'button_pulse': loading}"
       :disabled="loading"
+=======
+        <input
+        id="title"
+        class="form__input form__input_text-lg"
+        type="text"
+        placeholder="New Record"
+        required
+        v-model="note.title">
+        <textarea
+        id="body"
+        class="form__textarea"
+        placeholder="Type the content of your record here."
+        required
+        v-model="note.body"></textarea>
+        <label class="form__label" for="type">Type</label>
+        <input
+        id="type"
+        class="form__input form__input_border-bottom form__input_w-25"
+        type="text"
+        v-model="note.type">
+        <label class="form__label" for="keywords">Keywords (comma separated)</label>
+        <input
+        id="keywords"
+        class="form__input form__input_border-bottom form__input_w-50"
+        type="text"
+        placeholder="programming, self-development, health"
+        v-model="note.keywords">
+        <label class="form__label" for="reference">Reference</label>
+        <input
+        id="reference"
+        class="form__input form__input_border-bottom"
+        type="text"
+        placeholder="(Optional)"
+        v-model="note.reference">
+      </fieldset>
+      <button
+      class="button button_block button_mx-auto"
+>>>>>>> 6b1c446 (Updates basic styles and transition on Form.)
       type="submit"
       >{{ loading ? 'Please wait' : 'Save' }}</button>
     </form>
-    <div class="blur-screen" v-if="blur" @keyup.esc="unblur">
-      <div>
-        <input
-        type="text"
-        placeholder="New note"
-        id="centered-field"
-        class="form__input form__input_lg"
-        v-model.trim="note.title"
-        @keypress.enter="unblur">
-        <button
-        type="button"
-        class="button button_mx-auto"
-        @click="unblur"
-        >Continue</button>
-      </div>
+    <div class="blur-screen" v-if="blur" @keyup.esc="removeBlur">
+      <input
+      type="text"
+      placeholder="New note"
+      id="centered-field"
+      class="form__input form__input_text-lg form__input_border-bottom"
+      v-model.trim="note.title"
+      @keypress.enter="removeBlur">
+      <button
+      type="button"
+      class="button"
+      @click="removeBlur"
+      >Continue</button>
     </div>
   </div>
 </template>
 
 <style scoped>
 
-.form {
-  position: absolute;
-  top: 0;
+.container {
   height: 100%;
   width: 100%;
+  position: absolute;
+  top: 0;
+  display: grid;
+  place-items: center;
+}
+
+.form {
+  height: 100%;
+  width: 100%;
+  max-width: 700px;
   padding: 32px 6px;
   background-color: var(--darkest);
+  transition: filter .5s;
 }
 
 .form_blur {
-  filter: blur(2px);
+  filter: blur(4px);
 }
 
 .form__fieldset {
+  height: 100%;
   border: none;
-  width: 100%;
-  height: 100%;
-  display: flex;
-}
-.form__section {
-  width: 100%;
-  height: 100%;
-  padding: 0 8px;
-}
-
-.form__section_bl {
-  border-left: 1px solid var(--dark);
-}
-
-.form__section_relative {
-  position: relative;
 }
 
 .form__label {
@@ -171,13 +202,16 @@ function unblur() {
   color: var(--light);
 }
 
-.form__input_lg {
-  text-align: center;
-  font-size: 2rem;
+.form__input_text-lg {
+  font-size: 2.5rem;
 }
 
 .form__input_w-25 {
   width: 25%;
+}
+
+.form__input_w-50 {
+  width: 50%;
 }
 
 .form__input_border-bottom {
@@ -200,22 +234,17 @@ function unblur() {
   color: var(--neutral);
 }
 
-.form__option {
-  background-color: var(--dark);
-}
-
-.form__option:first-child {
-  font-style: italic;
-  color: var(--neutral);
-}
-
 .blur-screen {
+  height: 100%;
+  width: 100%;
+  max-width: 700px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
   position: absolute;
-  top: 4px;
-  width: 99vw;
-  height: 99vh;
-  display: grid;
-  place-items: center;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 </style>
