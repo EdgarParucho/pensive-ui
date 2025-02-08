@@ -26,7 +26,6 @@ async function handleSubmit() {
 }
 
 function removeBlur() {
-function removeBlur() {
   blur.value = false
   if (note.value.title == '') document.getElementById('title')?.focus()
   else document.getElementById('body')?.focus()
@@ -36,13 +35,12 @@ function removeBlur() {
 
 <template>
   <div class="container">
-  <div class="container">
+    <button
+    class="button button_absolute button_right button_top"
+    type="button"
+    @click="emit('close-form')"
+    >Close</button>
     <form class="form" :class="{'form_blur': blur}" @submit.prevent="handleSubmit">
-      <button
-      class="button button_absolute button_right button_top"
-      type="button"
-      @click="emit('close-form')"
-      >Close</button>
       <fieldset class="form__fieldset">
         <input
         id="title"
@@ -111,6 +109,7 @@ function removeBlur() {
       >Continue</button>
     </div>
   </div>
+  </div>
 </template>
 
 <style scoped>
@@ -118,9 +117,7 @@ function removeBlur() {
 .container {
   height: 100%;
   width: 100%;
-.container {
   height: 100%;
-  width: 100%;
   position: absolute;
   top: 0;
   display: grid;

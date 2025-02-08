@@ -109,38 +109,23 @@ function closeForm() {
   background-color: var(--dark);
   color: var(--light);
   cursor: pointer;
-<<<<<<< HEAD
-<<<<<<< HEAD
   transition: .25s;
-=======
   transition: box-shadow .5s;
->>>>>>> 6b1c446 (Updates basic styles and transition on Form.)
-=======
   transition: box-shadow .5s;
->>>>>>> wip
 }
 
 .button:disabled {
   background-color: var(--neutral);
   cursor: not-allowed;
 }
-<<<<<<< HEAD
-<<<<<<< HEAD
 .button:hover {
   border: 1px solid var(--neutral);
 }
-=======
-=======
->>>>>>> wip
 
 .button:hover {
   box-shadow: -2px 2px var(--neutral);
 }
 
-<<<<<<< HEAD
->>>>>>> 6b1c446 (Updates basic styles and transition on Form.)
-=======
->>>>>>> wip
 .button_mx-auto {
   margin-left: auto;
   margin-right: auto;
