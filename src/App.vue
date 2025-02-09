@@ -9,8 +9,14 @@ import Form from './components/Form.vue'
 const { loginWithRedirect, isAuthenticated, getAccessTokenSilently, logout } = useAuth0()
 
 const notes = ref<Note[]>([])
-const formIsOpen = ref(false)
-const setNotes = ({ data }: { data: Note[] }) => notes.value = data
+const showingNoteForm = ref(false)
+const showingQueryForm = ref(false)
+const loading = ref(false)
+const queryString = ref('')
+
+function setNotes({ data }: { data: Note[] }) {
+  notes.value = data
+}
 
 function start() {
   loginWithRedirect()
@@ -20,70 +26,114 @@ function finish() {
   logout()
 }
 
-async function read() {
-  const token = await getAccessTokenSilently()
-  Read(token).then(setNotes).then(alertOnSuccess).catch(alertOnFailure)
-}
-
 async function destroy(id: string) {
   const token = await getAccessTokenSilently()
   Destroy(id, token).then(alertOnSuccess).catch(alertOnFailure)
 }
 
-function openForm() {
-  formIsOpen.value = true
+function showNoteForm() {
+  showingNoteForm.value = true
 }
 
-function closeForm() {
-  formIsOpen.value = false
+function hideNoteForm() {
+  showingNoteForm.value = false
+}
+
+function openQueryForm() {
+  showingQueryForm.value = true
+}
+
+function hideQueryForm() {
+  showingQueryForm.value = false
+}
+
+async function makeQuery() {
+  loading.value = true
+  const token = await getAccessTokenSilently()
+  Read(token).then(setNotes).then(alertOnSuccess).catch(alertOnFailure).finally(() => loading.value = false)  
 }
 
 </script>
 
 <template>
-  <div>
+  <div class="base-container">
+
     <Transition>
-      <div v-show="!formIsOpen">
+      <button
+      v-if="isAuthenticated && (!showingNoteForm || !showingQueryForm)"
+      class="button button_secondary button_ml-auto"
+      :class="{ 'base-container_blur': showingNoteForm || showingQueryForm }"
+      :disabled="loading"
+      type="button"
+      @click="finish"
+      >Logout</button>
+      <button
+      v-else
+      class="button button_mx-auto"
+      type="button"
+      @click="start"
+      >Start</button>
+    </Transition>
+
+    <Transition>
+      <aside v-if="isAuthenticated && !showingNoteForm && !showingQueryForm" class="app-bar">
         <button
-        v-if="isAuthenticated"
-        class="button button_secondary button_ml-auto"
+        class="button button_bl-rounded"
+        :class="{ 'button_pulse': loading }"
+        :disabled="loading"
         type="button"
-        @click="finish"
-        >Logout</button>
-        
+        @click="openQueryForm"
+        >{{ loading ? 'Loading' : 'Read' }}</button>
+
         <button
-        v-else
-        class="button button_mx-auto"
+        class="button button_br-rounded"
         type="button"
-        @click="start"
-        >Start</button>
-        
-        <button
-        v-if="isAuthenticated"
-        class="button"
-        type="button"
-        @click="read"
-        >Read</button>
-        
-        <button
-        class="button"
-        type="button"
-        @click="openForm"
+        @click="showNoteForm"
         >Add</button>
-        <ul>
-          <li v-for="note in notes" :key="note.id">
-            <span>{{ note.title }}</span>
-            <button
-            class="button button_secondary"
-            type="button"
-            @click="destroy(note.id as string)"
-            >Destroy</button>
-          </li>
-        </ul>
+      </aside>
+    </Transition>
+
+    <Transition>
+      <ul v-if="notes.length > 0" class="note-list">
+        <li v-for="note in notes" :key="note.id" class="note-list__item">
+          <span class="note-list__title">{{ note.title }}</span>
+          <button
+          class="button button_secondary"
+          type="button"
+          @click="destroy(note.id as string)"
+          >Destroy</button>
+        </li>
+      </ul>
+    </Transition>
+
+    <Transition>
+      <div v-if="showingNoteForm" class="dialog">
+        <Form @close-form="hideNoteForm" />
       </div>
     </Transition>
+
     <Transition>
-      <Form v-if="formIsOpen" @close-form="closeForm" />
+      <div class="dialog dialog_justify-center" v-if="showingQueryForm" @keyup.esc="hideQueryForm">
+        <input
+        type="text"
+        placeholder="Query string"
+        id="centered-field"
+        class="form__input form__input_border-bottom"
+        v-model.trim="queryString"
+        @keypress.enter="makeQuery">
+        <div class="dialog__actions">
+          <button
+          type="button"
+          class="button button_secondary"
+          @click="hideQueryForm"
+          >Cancel</button>
+          <button
+          type="button"
+          class="button"
+          @click="makeQuery"
+          >Search</button>
+        </div>
+      </div>
     </Transition>
   </div>
 </template>
@@ -92,12 +142,52 @@ function closeForm() {
 
 .v-enter-active,
 .v-leave-active {
-  transition: opacity .5s ease;
+  transition: opacity .3s ease;
 }
 
 .v-enter-from,
 .v-leave-to {
   opacity: 0;
+}
+
+.base-container {
+  height: 100vh;
+  width: 100vw;
+  padding: 6px;
+  position: absolute;
+  display: grid;
+}
+
+.base-container_blur {
+  filter: blur(2px);
+}
+
+.dialog {
+  min-height: 140px;
+  width: 100%;
+  max-width: 700px;
+  padding: 32px 12px 0;
+  position: absolute;
+  top: 100px;
+  justify-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 0 6px 2px var(--dark);
+}
+
+.dialog_v-center {
+  top: calc(50% - 100px);
+}
+
+.dialog_justify-center {
+  justify-content: center;
+}
+
+.dialog__actions {
+  display: flex;
+  align-self: end;
+  gap: 8px;
 }
 
 .button {
@@ -109,21 +199,27 @@ function closeForm() {
   background-color: var(--dark);
   color: var(--light);
   cursor: pointer;
-  transition: .25s;
   transition: box-shadow .5s;
-  transition: box-shadow .5s;
+  outline: none;
+}
+
+.button_align-center {
+  align-self: center;
+  justify-self: center;
+}
+
+.button:focus, .button:hover {
+  box-shadow: 0px 0px 1px 1px var(--neutral);
 }
 
 .button:disabled {
-  background-color: var(--neutral);
+  color: var(--neutral);
   cursor: not-allowed;
-}
-.button:hover {
-  border: 1px solid var(--neutral);
+  box-shadow: none;
 }
 
-.button:hover {
-  box-shadow: -2px 2px var(--neutral);
+.button_secondary {
+  background-color: var(--darkest);
 }
 
 .button_mx-auto {
@@ -135,36 +231,29 @@ function closeForm() {
   margin-left: auto;
 }
 
-.button_w-50 {
-  width: 50%;
-}
-
-.button_block {
-  display: block;
-  width: 100%;
-}
-
 .button_absolute {
   position: absolute;
 }
 
-.button_top {
+.button_top-right {
   top: 4px;
-}
-
-.button_right {
   right: 4px;
 }
 
-.button_bottom {
-  align-self: flex-end;
-}
 .button_pulse {
   animation-name: pulse;
   animation-duration: .7s;
   animation-iteration-count: infinite;
   animation-timing-function: ease-in-out;
   animation-direction: alternate;
+}
+
+.button_bl-rounded {
+  border-radius: 20px 0 0 20px;
+}
+
+.button_br-rounded {
+  border-radius: 0 20px 20px 0;
 }
 
 @keyframes pulse {
@@ -175,4 +264,93 @@ function closeForm() {
     background-color: var(--neutral);
   }
 }
+
+.app-bar {
+  height: 24px;
+  width: 140px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--dark);
+  border-radius: 20px;
+}
+
+.note-list {
+  display: grid;
+  justify-content: center;
+  gap: 6px;
+}
+
+.note-list__item {
+  width: 300px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.form {
+  padding: 6px 12px;
+  display: grid;
+  place-items: center;
+  gap: 8px;
+}
+
+.form__fieldset {
+  height: 100%;
+  border: none;
+}
+
+.form__label {
+  margin: 8px 0;
+  font-size: .7rem;
+  font-weight: bold;
+  display: block;
+  color: var(--light);
+}
+
+.form__input {
+  width: 100%;
+  margin-bottom: 1rem;
+  border: none;
+  outline: none;
+  background-color: transparent;
+  color: var(--light);
+}
+
+.form__input::placeholder, .form__textarea::placeholder {
+  font-style: italic;
+  color: var(--neutral);
+}
+
+.form__input_text-lg {
+  font-size: 2.5rem;
+}
+
+.form__input_w-25 {
+  width: 25%;
+}
+
+.form__input_w-50 {
+  width: 50%;
+}
+
+.form__input_border-bottom {
+  border-bottom: 1px solid  var(--dark);
+}
+
+.form__input_border-bottom:focus {
+  border-bottom: 1px solid  cyan;
+}
+
+.form__textarea {
+  width: 100%;
+  height: 10rem;
+  margin-bottom: 1rem;
+  border: none;
+  outline: none;
+  background-color: transparent;
+  color: var(--light);
+  resize: none;
+}
+
 </style>
