@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
 import { Read, Destroy } from './api'
 import { alertOnSuccess, alertOnFailure } from './helpers/responses.ts'
@@ -13,6 +13,8 @@ const showingNoteForm = ref(false)
 const showingQueryForm = ref(false)
 const loading = ref(false)
 const queryString = ref('')
+
+const invalidQuery = computed(() => queryString.value.replace(' ', '').length < 3)
 
 function setNotes({ data }: { data: Note[] }) {
   notes.value = data
@@ -28,7 +30,9 @@ function finish() {
 
 async function destroy(id: string) {
   const token = await getAccessTokenSilently()
-  Destroy(id, token).then(alertOnSuccess).catch(alertOnFailure)
+  Destroy(id, token)
+    .then(() => alertOnSuccess())
+    .catch(alertOnFailure)
 }
 
 function showNoteForm() {
@@ -41,6 +45,7 @@ function hideNoteForm() {
 
 function openQueryForm() {
   showingQueryForm.value = true
+  document.getElementById('title')?.focus()
 }
 
 function hideQueryForm() {
@@ -50,7 +55,19 @@ function hideQueryForm() {
 async function makeQuery() {
   loading.value = true
   const token = await getAccessTokenSilently()
-  Read(token).then(setNotes).then(alertOnSuccess).catch(alertOnFailure).finally(() => loading.value = false)  
+  Read(token, queryString.value)
+    .then(({ data }) => {
+      const notesFound = data.length > 0
+      if (notesFound) {
+        alertOnSuccess()
+        setNotes({ data })
+        hideQueryForm()
+      } else {
+        alertOnSuccess('Could not not found any notes with the given query.')
+      }
+    })
+    .catch(alertOnFailure)
+    .finally(() => loading.value = false)  
 }
 
 </script>
@@ -59,20 +76,22 @@ async function makeQuery() {
   <div class="base-container">
 
     <Transition>
-      <button
-      v-if="isAuthenticated && (!showingNoteForm || !showingQueryForm)"
-      class="button button_secondary button_ml-auto"
-      :class="{ 'base-container_blur': showingNoteForm || showingQueryForm }"
-      :disabled="loading"
-      type="button"
-      @click="finish"
-      >Logout</button>
-      <button
-      v-else
-      class="button button_mx-auto"
-      type="button"
-      @click="start"
-      >Start</button>
+      <div class="top-bar">
+        <button
+        v-if="isAuthenticated && (!showingNoteForm || !showingQueryForm)"
+        class="button button_secondary"
+        :class="{ 'base-container_blur': showingNoteForm || showingQueryForm }"
+        :disabled="loading"
+        type="button"
+        @click="finish"
+        >Logout</button>
+        <button
+        v-if="!isAuthenticated"
+        class="button button_mx-auto"
+        type="button"
+        @click="start"
+        >Start</button>
+      </div>
     </Transition>
 
     <Transition>
@@ -83,7 +102,7 @@ async function makeQuery() {
         :disabled="loading"
         type="button"
         @click="openQueryForm"
-        >{{ loading ? 'Loading' : 'Read' }}</button>
+        >{{ loading ? 'Loading' : 'Search' }}</button>
 
         <button
         class="button button_br-rounded"
@@ -94,7 +113,7 @@ async function makeQuery() {
     </Transition>
 
     <Transition>
-      <ul v-if="notes.length > 0" class="note-list">
+      <ul v-if="notes.length > 0 && !showingNoteForm && !showingQueryForm" class="note-list">
         <li v-for="note in notes" :key="note.id" class="note-list__item">
           <span class="note-list__title">{{ note.title }}</span>
           <button
@@ -113,11 +132,12 @@ async function makeQuery() {
     </Transition>
 
     <Transition>
-      <div class="dialog dialog_justify-center" v-if="showingQueryForm" @keyup.esc="hideQueryForm">
+      <div class="dialog" v-if="showingQueryForm" @keyup.esc="hideQueryForm">
+        <label class="form__label" for="query">Search string</label>
         <input
         type="text"
-        placeholder="Query string"
-        id="centered-field"
+        placeholder="Type here to search"
+        id="query"
         class="form__input form__input_border-bottom"
         v-model.trim="queryString"
         @keypress.enter="makeQuery">
@@ -125,11 +145,14 @@ async function makeQuery() {
           <button
           type="button"
           class="button button_secondary"
+          :disabled="loading"
           @click="hideQueryForm"
           >Cancel</button>
           <button
           type="button"
           class="button"
+          :class="{ 'button_pulse': loading }"
+          :disabled="loading || invalidQuery"
           @click="makeQuery"
           >Search</button>
         </div>
@@ -162,6 +185,10 @@ async function makeQuery() {
   filter: blur(2px);
 }
 
+.top-bar {
+  justify-self: end;
+}
+
 .dialog {
   min-height: 140px;
   width: 100%;
@@ -172,16 +199,11 @@ async function makeQuery() {
   justify-self: center;
   display: flex;
   flex-direction: column;
-  align-items: center;
   box-shadow: 0 0 6px 2px var(--dark);
 }
 
 .dialog_v-center {
   top: calc(50% - 100px);
-}
-
-.dialog_justify-center {
-  justify-content: center;
 }
 
 .dialog__actions {
@@ -195,7 +217,7 @@ async function makeQuery() {
   width: 64px;
   border: 1px solid var(--dark);
   border-radius: 2px;
-  display: block;
+  display: inline-block;
   background-color: var(--dark);
   color: var(--light);
   cursor: pointer;
@@ -220,6 +242,10 @@ async function makeQuery() {
 
 .button_secondary {
   background-color: var(--darkest);
+}
+
+.button_self-end {
+  justify-self: end;
 }
 
 .button_mx-auto {
