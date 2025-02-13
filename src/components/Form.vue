@@ -28,11 +28,7 @@ async function handleSubmit() {
 
 <template>
   <form class="form" @submit.prevent="handleSubmit">
-    <button
-    class="button button_secondary button_self-end"
-    type="button"
-    @click="emit('close-form')"
-    >Close</button>
+
     <fieldset class="form__fieldset">
 
       <input
@@ -75,9 +71,17 @@ async function handleSubmit() {
       v-model.trim="note.reference">
 
     </fieldset>
-    <button
-    class="button button_ml-auto"
-    type="submit"
-    >{{ loading ? 'Saving' : 'Save' }}</button>
+
+    <div class="form__actions">
+      <button
+      class="button button_secondary"
+      type="button"
+      @click="emit('close-form')"
+      >Discard</button>
+      <button
+      class="button"
+      type="submit"
+      >{{ loading ? 'Saving' : 'Save' }}</button>
+    </div>
   </form>
 </template>

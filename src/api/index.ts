@@ -4,8 +4,8 @@ import Note from '../models/Note'
 const Create = (fields: Partial<Note>, token: string) => axios
   .post('/', fields, { headers: { Authorization: `Bearer ${token}` } })
 
-const Read = (token: string, query: string) => axios
-  .get('/', { headers: { Authorization: `Bearer ${token}` }, params: { query } })
+const Read = (token: string, search: string) => axios
+  .get('/', { headers: { Authorization: `Bearer ${token}` }, params: { search } })
 
 const Update = ({ id, ...fields }: Partial<Note>, token: string) => axios
   .patch('/' + id, fields, { headers: { Authorization: `Bearer ${token}` } })
