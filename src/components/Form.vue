@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
 import { alertOnSuccess, alertOnFailure } from '../helpers/responses.ts'
 import Note from '../models/Note.ts'
@@ -11,8 +11,17 @@ const emit = defineEmits(['close-form'])
 
 const note = ref(new Note({}))
 const loading = ref(false)
+const keywordsString = ref('')
+
+const keywords = computed(() => new Set(keywordsString.value
+    .toLowerCase()
+    .split(',')
+    .map(keyword => keyword.trim())
+    .filter(keyword => keyword != ''))
+)
 
 async function handleSubmit() {
+  note.value.keywords = [...keywords.value].join(', ');
   try {
     const token = await getAccessTokenSilently()
     await note.value.create(token)
@@ -38,14 +47,16 @@ async function handleSubmit() {
       placeholder="New Record"
       required
       v-model.trim="note.title"
-      autofocus>
+      autofocus
+      autocomplete="off">
 
       <textarea
       id="body"
       class="form__textarea"
       placeholder="Type the content of your record here."
       required
-      v-model.trim="note.body"></textarea>
+      v-model.trim="note.body"
+      autocomplete="off"></textarea>
 
       <label class="form__label" for="type">Type</label>
       <input
@@ -60,7 +71,12 @@ async function handleSubmit() {
       class="form__input form__input_border-bottom form__input_w-50"
       type="text"
       placeholder="programming, self-development, health"
-      v-model.trim="note.keywords">
+      v-model.trim="keywordsString"
+      autocomplete="off">
+
+      <div class="keyword-container">
+        <span v-for="keyword, i in keywords" :key="i" class="keyword">{{ keyword }}</span>
+      </div>
 
       <label class="form__label" for="reference">Reference</label>
       <input
@@ -68,7 +84,8 @@ async function handleSubmit() {
       class="form__input form__input_border-bottom"
       type="text"
       placeholder="(Optional)"
-      v-model.trim="note.reference">
+      v-model.trim="note.reference"
+      autocomplete="off">
 
     </fieldset>
 
@@ -85,3 +102,19 @@ async function handleSubmit() {
     </div>
   </form>
 </template>
+
+<style scoped>
+.keyword-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.keyword {
+  padding: 0 6px;
+  border-radius: 2px;
+  font-size: .7rem;
+  color: var(--light);
+  background-color: var(--dark);
+}
+</style>
