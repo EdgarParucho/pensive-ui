@@ -9,7 +9,7 @@ onMounted(() => {
   else unlockForm()
 })
 
-const emit = defineEmits(['close-form'])
+const emit = defineEmits(['close-form', 'destroy'])
 const props = defineProps(['selectedNote'])
 const { getAccessTokenSilently } = useAuth0()
 
@@ -69,6 +69,10 @@ async function handleSubmit() {
 function unlockForm() {
   formLocked.value = false
   focusOnTitle()
+}
+
+function onDelete(id: string) {
+  if (confirm('Please confirm to delete the note permanently.')) emit('destroy', id)
 }
 
 </script>
@@ -159,6 +163,12 @@ function unlockForm() {
       type="button"
       @click="unlockForm"
       >Unlock</button>
+      <button
+      v-if="selectedNote"
+      class="button button_secondary"
+      type="button"
+      @click="onDelete(selectedNote.id)"
+      >Delete</button>
     </div>
   </Transition>
 

@@ -31,6 +31,7 @@ async function destroy(id: string) {
   Destroy(id, token)
     .then(() => setNotes({ data: notes.value.filter(n => n.id !== id )}))
     .then(() => alertOnSuccess())
+    .then(() => hideNoteForm())
     .catch(alertOnFailure)
 }
 
@@ -39,7 +40,7 @@ function showNoteForm(note?: Note) {
   showingNoteForm.value = true
 }
 
-function hideNoteForm(note: Note | null) {
+function hideNoteForm(note?: Note) {
   if (selectedNote.value && note) updateNotes(note)
   selectedNote.value = null
   showingNoteForm.value = false
@@ -78,7 +79,6 @@ function hideQueryForm() {
       <Notes
       v-if="notes.length > 0 && dialogIsHidden"
       :notes="notes"
-      @destroy="destroy"
       @read-note="(note: Note) => showNoteForm(note)"/>
     </Transition>
     
@@ -92,6 +92,7 @@ function hideQueryForm() {
       <Dialog v-if="showingNoteForm" lg="true">
         <Form
         @close-form="hideNoteForm"
+        @destroy="destroy"
         :selected-note="selectedNote" />
       </Dialog>
     </Transition>
