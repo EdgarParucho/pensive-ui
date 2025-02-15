@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
 import { Destroy } from './api'
 import { alertOnSuccess, alertOnFailure } from './helpers/responses.ts'
@@ -16,6 +16,11 @@ const { isAuthenticated, getAccessTokenSilently } = useAuth0()
 const notes = ref<Note[]>([])
 const showingNoteForm = ref(false)
 const showingQueryForm = ref(false)
+const selectedNote = ref<Note | null>(null)
+
+const dialogIsHidden = computed(() => {
+  return !showingNoteForm.value && !showingQueryForm.value
+})
 
 function setNotes({ data }: { data: Note[] }) {
   notes.value = data
@@ -29,13 +34,22 @@ async function destroy(id: string) {
     .catch(alertOnFailure)
 }
 
-function showNoteForm() {
+function showNoteForm(note?: Note) {
+  if (note) selectedNote.value = note
   showingNoteForm.value = true
 }
 
-function hideNoteForm() {
+function hideNoteForm(note: Note | null) {
+  if (selectedNote.value && note) updateNotes(note)
+  selectedNote.value = null
   showingNoteForm.value = false
 }
+
+function updateNotes(note: Note) {
+  const updatedIndex = notes.value.findIndex(n => n.id == note.id)
+  notes.value.splice(updatedIndex, 1, note)
+}
+
 
 function showQueryForm() {
   showingQueryForm.value = true
@@ -51,21 +65,21 @@ function hideQueryForm() {
   <main class="base-container">
 
     <Transition>
-      <Authenticator v-if="!showingNoteForm && !showingQueryForm" />
-    </Transition>
-
-    <Transition>
-      <Menu
-      v-if="isAuthenticated && !showingNoteForm && !showingQueryForm"
-      @show-query-form="showQueryForm"
-      @show-note-form="showNoteForm" />
+      <header v-if="dialogIsHidden">
+        <Authenticator />
+        <Menu
+        v-if="isAuthenticated"
+        @show-query-form="showQueryForm"
+        @show-note-form="showNoteForm" />
+      </header>
     </Transition>
 
     <Transition>
       <Notes
-      v-if="notes.length > 0 && !showingNoteForm && !showingQueryForm"
+      v-if="notes.length > 0 && dialogIsHidden"
       :notes="notes"
-      @destroy="destroy" />
+      @destroy="destroy"
+      @read-note="(note: Note) => showNoteForm(note)"/>
     </Transition>
     
     <Transition>
@@ -75,8 +89,10 @@ function hideQueryForm() {
     </Transition>
 
     <Transition>
-      <Dialog v-if="showingNoteForm">
-        <Form @close-form="hideNoteForm" />
+      <Dialog v-if="showingNoteForm" lg="true">
+        <Form
+        @close-form="hideNoteForm"
+        :selected-note="selectedNote" />
       </Dialog>
     </Transition>
 
@@ -108,7 +124,7 @@ function hideQueryForm() {
   width: 64px;
   border: 1px solid var(--dark);
   border-radius: 2px;
-  display: inline-block;
+  display: block;
   background-color: var(--dark);
   color: var(--light);
   cursor: pointer;
@@ -139,15 +155,6 @@ function hideQueryForm() {
   margin-left: auto;
 }
 
-.button_absolute {
-  position: absolute;
-}
-
-.button_top-right {
-  top: 4px;
-  right: 4px;
-}
-
 .button_pulse {
   animation-name: pulse;
   animation-duration: .7s;
@@ -174,7 +181,9 @@ function hideQueryForm() {
 }
 
 .form {
-  padding: 6px 12px;
+  height: 100%;
+  position: relative;
+  padding: 6px 12px 12px;
 }
 
 .form__fieldset {
@@ -236,9 +245,10 @@ function hideQueryForm() {
 }
 
 .form__actions {
-  margin-top: 12px;
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
   display: flex;
-  justify-content: end;
   gap: 12px;
 }
 

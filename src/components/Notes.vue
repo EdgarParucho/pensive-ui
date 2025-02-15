@@ -1,7 +1,7 @@
 <script setup lang='ts'>
 
 defineProps(['notes'])
-const emit = defineEmits(['destroy'])
+const emit = defineEmits(['destroy', 'read-note'])
 
 function askConfirmation(id: string) {
   if (confirm('Please confirm to delete the note permanently.')) emit('destroy', id)
@@ -17,6 +17,11 @@ function askConfirmation(id: string) {
       type="button"
       @click="askConfirmation(note.id)"
       >Delete</button>
+      <button
+      class="button button_secondary"
+      type="button"
+      @click="emit('read-note', note)"
+      >View</button>
     </li>
   </ul>
 </template>
