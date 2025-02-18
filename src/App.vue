@@ -5,7 +5,6 @@ import { Destroy } from './api'
 import { alertOnSuccess, alertOnFailure } from './helpers/responses.ts'
 import Note from './models/Note.ts'
 import Form from './components/Form.vue'
-import Dialog from './components/Dialog.vue'
 import Search from './components/Search.vue'
 import Authenticator from './components/Authenticator.vue'
 import Menu from './components/Menu.vue'
@@ -83,18 +82,18 @@ function hideQueryForm() {
     </Transition>
     
     <Transition>
-      <Dialog v-if="showingQueryForm">
+      <dialog class="dialog" :open="showingQueryForm" v-if="showingQueryForm">
         <Search @set-notes="setNotes" @hide-query-form="hideQueryForm" />
-      </Dialog>
+      </dialog>
     </Transition>
 
     <Transition>
-      <Dialog v-if="showingNoteForm" lg="true">
+      <dialog class="dialog" :open="showingNoteForm" v-if="showingNoteForm">
         <Form
         @close-form="hideNoteForm"
         @destroy="destroy"
         :selected-note="selectedNote" />
-      </Dialog>
+      </dialog>
     </Transition>
 
   </main>
@@ -172,6 +171,12 @@ function hideQueryForm() {
   border-radius: 0 20px 20px 0;
 }
 
+.button_rounded {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+}
+
 @keyframes pulse {
   from {
     background-color: var(--dark);
@@ -183,8 +188,18 @@ function hideQueryForm() {
 
 .form {
   height: 100%;
+  width: 100%;
+  max-height: 600px;
+  max-width: 500px;
   position: relative;
-  padding: 6px 12px 12px;
+  padding: 12px;
+  box-shadow: -1px -1px 4px 0 var(--neutral);
+  background-color: var(--dark);
+}
+
+.form_sm {
+  max-height: 100px;
+  max-width: 360px;
 }
 
 .form__fieldset {
@@ -236,7 +251,7 @@ function hideQueryForm() {
 
 .form__textarea {
   width: 100%;
-  height: 10rem;
+  height: 45%;
   margin-bottom: 1rem;
   border: none;
   outline: none;
@@ -245,12 +260,92 @@ function hideQueryForm() {
   resize: none;
 }
 
-.form__actions {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-  display: flex;
+.actions-panel {
+  position: fixed;
+  width: 100%;
+  height: 20px;
+  max-width: 372px;
+  bottom: -10px;
   gap: 12px;
+  background-color: var(--dark);
+  border-radius: 16px 16px 0 0;
+}
+
+.actions-panel::before {
+  content: '';
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  width: 10px;
+  height: 10px;
+  position: absolute;
+  top: -5px;
+  left: 22px;
+  background-color: var(--dark);
+  transform: rotate(325deg);
+}
+
+.actions-panel::after {
+  content: '';
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+  width: 10px;
+  height: 10px;
+  position: absolute;
+  top: -5px;
+  right: 22px;
+  background-color: var(--dark);
+  transform: rotate(325deg);
+}
+
+.tabs {
+  position: relative;
+  margin: -19px auto 0;
+  height: 20px;
+  padding-top: 8px;
+  width: 320px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background-color: var(--dark);
+  border-radius: 16px 16px 0 0;
+}
+
+.tabs::before {
+  content: '';
+  height: 36px;
+  width: 36px;
+  border-radius: 50%;
+  background-color: var(--darkest);
+  position: absolute;
+  bottom: -10px;
+  left: -36px;
+  z-index: 20;
+}
+
+
+.tabs::after {
+  content: '';
+  height: 36px;
+  width: 36px;
+  border-radius: 50%;
+  background-color: var(--darkest);
+  position: absolute;
+  bottom: -10px;
+  right: -36px;
+  z-index: 20;
+}
+
+.dialog {
+  height: 100vh;
+  width: 100vw;
+  border: none;
+  position: absolute;
+  top: 0;
+  display: grid;
+  place-items: center;
+  background-color: transparent;
 }
 
 </style>

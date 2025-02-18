@@ -19,6 +19,7 @@ const keywordsString = ref('')
 const formLocked = ref(true)
 const title = ref<HTMLElement | null>(null)
 const fieldset = ref<HTMLElement | null>(null)
+const showKeywords = ref(false)
 
 const keywords = computed(() => [...new Set(keywordsString.value
   ?.toLowerCase()
@@ -117,11 +118,17 @@ function onDelete(id: string) {
           <label class="form__label" for="keywords">Keywords</label>
           <input
           id="keywords"
-          class="form__input form__input_border-bottom form__input_w-50"
+          class="form__input form__input_border-bottom form__input_w-50 form__input_hint"
           type="text"
           placeholder="programming, self-development, health"
           autocomplete="off"
           v-model.trim="keywordsString">
+          <div class="hint">
+            <span class="hint__action" @mouseenter="showKeywords = true" @mouseleave="showKeywords = false">i</span>
+            <div v-show="showKeywords && keywords.length" class="hint__text">
+              <span v-for="keyword, i in keywords" :key="i" class="keyword">{{ keyword }}</span>
+            </div>
+          </div>
 
           <label class="form__label" for="reference">Reference</label>
           <input
@@ -138,63 +145,89 @@ function onDelete(id: string) {
     </fieldset>
   </form>
 
-  <div class="keyword-container">
-    <span v-for="keyword, i in keywords" :key="i" class="keyword">{{ keyword }}</span>
-  </div>
   <p class="note-reference" v-show="formLocked && note.reference">{{ note.reference }}</p>
 
   <Transition>
-    <div class="form__actions">
-      <button
-      class="button button_secondary"
-      type="button"
-      @click="emit('close-form')"
-      >Back</button>
-      <button
-      v-show="!formLocked"
-      class="button"
-      type="button"
-      @click="handleSubmit"
-      :disabled="loading || invalidForm || (updating && updateUnmodified)"
-      >{{ loading ? 'Saving' : 'Save' }}</button>
-      <button
-      v-if="formLocked"
-      class="button button_secondary"
-      type="button"
-      @click="unlockForm"
-      >Unlock</button>
-      <button
-      v-if="selectedNote"
-      class="button button_secondary"
-      type="button"
-      @click="onDelete(selectedNote.id)"
-      >Delete</button>
+    <div class="actions-panel">
+      <div class="tabs">
+        <button
+        class="button button_secondary button_rounded"
+        type="button"
+        @click="emit('close-form')"
+        >B</button>
+        <button
+        v-show="!formLocked"
+        class="button button_rounded"
+        type="button"
+        @click="handleSubmit"
+        :disabled="loading || invalidForm || (updating && updateUnmodified)"
+        >{{ loading ? '...' : 'S' }}</button>
+        <button
+        v-if="formLocked"
+        class="button button_secondary button_rounded"
+        type="button"
+        @click="unlockForm"
+        >U</button>
+        <button
+        v-if="selectedNote"
+        class="button button_secondary button_rounded"
+        type="button"
+        @click="onDelete(selectedNote.id)"
+        >D</button>
+      </div>
     </div>
   </Transition>
 
 </template>
 
 <style scoped>
-.keyword-container {
+
+.hint {
+  position: relative;
+  margin-left: 12px;
+  display: inline-block;
+}
+
+.hint__action {
+  margin-left: 12px;
+  cursor: default;
+  display: inline-block;
+  text-align: center;
+  font-size: .8rem;
+  color: var(--light);
+  border: 1px solid var(--neutral);
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+}
+
+.hint__text {
+  width: 300px;
+  border: 1px solid var(--neutral);
+  padding: 4px;
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
   position: absolute;
-  bottom: 72px;
+  top: 28px;
+  right: -8px;
+  background-color: var(--dark);
 }
 
 .keyword {
   padding: 0 6px;
-  border-radius: 2px;
   font-size: .8rem;
+  font-size: .6rem;
   color: var(--light);
-  background-color: var(--dark);
+  background-color: var(--neutral);
 }
 
 .note-reference {
+  max-width: 480px;
   font-size: .8rem;
+  color: var(--light);
   position: absolute;
-  bottom: 44px;
+  bottom: 96px;
 }
 
 .note-type {

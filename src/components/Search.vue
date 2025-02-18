@@ -16,26 +16,28 @@ const invalidQuery = computed(() => searchString.value.replace(' ', '').length <
 async function search() {
   if (invalidQuery.value) return
   loading.value = true
-  const token = await getAccessTokenSilently()
-  Read(token, searchString.value)
-    .then(({ data }) => {
-      const notesFound = data.length > 0
-      if (notesFound) {
-        alertOnSuccess()
-        emit('set-notes', { data })
-        emit('hide-query-form')
-      } else {
-        alertOnSuccess('Could not not found any notes with the given query.')
-      }
-    })
-    .catch(alertOnFailure)
-    .finally(() => loading.value = false)  
+  try {
+    const token = await getAccessTokenSilently()
+    const { data } = await Read(token, searchString.value)
+    const notesFound = data.length > 0
+    if (notesFound) {
+      alertOnSuccess()
+      emit('set-notes', { data })
+      emit('hide-query-form')
+    } else {
+      alertOnSuccess('Could not not found any notes with the given query.')
+    }
+  } catch (__) {
+    alertOnFailure()
+  } finally {
+    loading.value = false
+  }
 }
 
 </script>
 
 <template>
-  <form class="form" @submit.prevent="search" @keyup.esc="() => emit('hide-query-form')">
+  <form class="form form_sm" @submit.prevent="search" @keyup.esc="() => emit('hide-query-form')">
     <label class="form__label" for="search">Search string</label>
     <input
     type="text"
@@ -44,19 +46,21 @@ async function search() {
     class="form__input form__input_border-bottom"
     v-model.trim="searchString"
     @keypress.enter="search">
-    <div class="form__actions">
-      <button
-      type="button"
-      class="button button_secondary"
-      :disabled="loading"
-      @click="() => $emit('hide-query-form')"
-      >Cancel</button>
-      <button
-      type="submit"
-      class="button"
-      :class="{ 'button_pulse': loading }"
-      :disabled="loading || invalidQuery"
-      >Search</button>
+    <div class="actions-panel">
+      <div class="tabs">
+        <button
+        type="button"
+        class="button button_rounded button_secondary"
+        :disabled="loading"
+        @click="() => $emit('hide-query-form')"
+        >C</button>
+        <button
+        type="submit"
+        class="button button_rounded"
+        :class="{ 'button_pulse': loading }"
+        :disabled="loading || invalidQuery"
+        >S</button>
+      </div>
     </div>
   </form>
 </template>
