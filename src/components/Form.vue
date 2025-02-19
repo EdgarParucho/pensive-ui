@@ -22,6 +22,7 @@ const title = ref<HTMLElement | null>(null)
 const fieldset = ref<HTMLElement | null>(null)
 const showKeywords = ref(false)
 const confirming = ref(false)
+const updating = ref(false)
 
 const keywords = computed(() => [...new Set(keywordsString.value
   ?.toLowerCase()
@@ -34,15 +35,15 @@ const mandatoryFields = ['title', 'body', 'type']
 
 const invalidForm = computed(() => mandatoryFields.some((field) => !note.value[field as keyof Note]))
 
-const updating = computed(() => props.selectedNote != null)
 
-const updateUnmodified = computed(() => {
-  if (updating.value) return false
-  const formValues = { ...note.value, keywords: keywords.value }
+const unmodified = computed(() => {
+  if (!updating.value) return false
+  const formValues = { ...note.value, keywords: keywords.value.join(', ') }
   return JSON.stringify(formValues) === JSON.stringify(props.selectedNote)
 })
 
 function startFromPreset() {
+  updating.value = true
   note.value = new Note({ ...props.selectedNote })
   keywordsString.value = note.value.keywords as string
   formLocked.value = true
@@ -145,12 +146,11 @@ function onDelete(id: string) {
 
       </Transition>
     </fieldset>
+    <p class="note-reference" v-show="formLocked && note.reference">{{ note.reference }}</p>
   </form>
 
-  <p class="note-reference" v-show="formLocked && note.reference">{{ note.reference }}</p>
-
   <Transition>
-    <div class="actions-panel">
+    <div class="actions-panel" v-if="!confirming">
       <div class="tabs">
         <button
         class="button button_secondary button_rounded"
@@ -162,7 +162,7 @@ function onDelete(id: string) {
         class="button button_rounded"
         type="button"
         @click="handleSubmit"
-        :disabled="loading || invalidForm || (updating && updateUnmodified)"
+        :disabled="loading || invalidForm || (updating && unmodified)"
         >{{ loading ? '...' : 'S' }}</button>
         <button
         v-if="formLocked"
@@ -239,7 +239,7 @@ function onDelete(id: string) {
   font-size: .8rem;
   color: var(--light);
   position: absolute;
-  bottom: 96px;
+  bottom: 64px;
 }
 
 .note-type {
