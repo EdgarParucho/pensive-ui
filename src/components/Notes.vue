@@ -7,33 +7,33 @@ const emit = defineEmits(['read-note'])
 
 <template>
   <ul class="list">
-    <li v-for="note in notes" :key="note.id" class="list__item">
+    <li v-for="note in notes" :key="note.id" class="list__item" @click="emit('read-note', note)">
       <span class="list__item-title">{{ note.title }}</span>
-      <button
-      class="button button_secondary"
-      type="button"
-      >Delete</button>
-      <button
-      class="button button_secondary"
-      type="button"
-      @click="emit('read-note', note)"
-      >View</button>
     </li>
   </ul>
 </template>
 
 <style scoped>
+
 .list {
-  display: grid;
-  justify-content: center;
-  gap: 6px;
+  margin: 0 auto;
 }
 
 .list__item {
-  width: 300px;
-  display: flex;
-  justify-content: space-between;
+  margin: 12px 0;
+  list-style: none;
+  width: 400px;
+  height: 32px;
+  background-color: var(--dark);
+  padding: 6px;
+  cursor: pointer;
+  transition: box-shadow .4s;
 }
+
+.list__item:hover {
+  box-shadow: -1px 0 4px 0 var(--neutral);
+}
+
 .list__item-title {
   font-weight: bold;
 }

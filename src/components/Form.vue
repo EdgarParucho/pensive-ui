@@ -3,6 +3,7 @@ import { computed, nextTick, onMounted, ref } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
 import { alertOnSuccess, alertOnFailure } from '../helpers/responses.ts'
 import Note from '../models/Note.ts'
+import Confirm from './Confirm.vue'
 
 onMounted(() => {
   if (props.selectedNote != null) startFromPreset()
@@ -20,6 +21,7 @@ const formLocked = ref(true)
 const title = ref<HTMLElement | null>(null)
 const fieldset = ref<HTMLElement | null>(null)
 const showKeywords = ref(false)
+const confirming = ref(false)
 
 const keywords = computed(() => [...new Set(keywordsString.value
   ?.toLowerCase()
@@ -73,13 +75,13 @@ function unlockForm() {
 }
 
 function onDelete(id: string) {
-  if (confirm('Please confirm to delete the note permanently.')) emit('destroy', id)
+  confirming.value = true
 }
 
 </script>
 
 <template>
-  <form class="form" @submit.prevent="handleSubmit">
+  <form class="form" :class="{ 'form_blur': confirming }" @submit.prevent="handleSubmit">
     <fieldset class="form__fieldset" ref="fieldset">
 
       <input
@@ -176,6 +178,16 @@ function onDelete(id: string) {
         >D</button>
       </div>
     </div>
+  </Transition>
+
+  <Transition>
+    <dialog class="dialog" :open="confirming" v-show="confirming">
+      <Confirm
+      title="Delete permanently?"
+      message="Please confirm to proceed."
+      @on-cancel="confirming = false"
+      @on-confirm="emit('destroy', selectedNote.id)" />
+    </dialog>
   </Transition>
 
 </template>

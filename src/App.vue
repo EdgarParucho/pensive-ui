@@ -195,6 +195,11 @@ function hideQueryForm() {
   padding: 12px;
   box-shadow: -1px -1px 4px 0 var(--neutral);
   background-color: var(--dark);
+  transition: filter .5s;
+}
+
+.form_blur {
+  filter: blur(4px);
 }
 
 .form_sm {
@@ -266,7 +271,7 @@ function hideQueryForm() {
   height: 20px;
   max-width: 372px;
   bottom: -10px;
-  gap: 12px;
+  left: calc(50% - 186px);
   background-color: var(--dark);
   border-radius: 16px 16px 0 0;
 }
