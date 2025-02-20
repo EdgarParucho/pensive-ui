@@ -16,36 +16,36 @@ const { getAccessTokenSilently } = useAuth0()
 
 const note = ref(new Note({}))
 const loading = ref(false)
-const keywordsString = ref('')
 const formLocked = ref(true)
 const title = ref<HTMLElement | null>(null)
 const fieldset = ref<HTMLElement | null>(null)
 const showKeywords = ref(false)
 const confirming = ref(false)
 const updating = ref(false)
+const rawKeywords = ref('')
 
-const keywords = computed(() => [...new Set(keywordsString.value
+const keywordsValidated = computed(() => [...new Set(rawKeywords.value
   ?.toLowerCase()
   .split(',')
   .map(keyword => keyword.trim())
   .filter(keyword => keyword != ''))]
+  .join(', ')
 )
 
-const mandatoryFields = ['title', 'body', 'type']
-
-const invalidForm = computed(() => mandatoryFields.some((field) => !note.value[field as keyof Note]))
-
+const invalidForm = computed(() => ['title', 'body', 'type']
+  .some((mandatoryField) => !note.value[mandatoryField as keyof Note]))
 
 const unmodified = computed(() => {
   if (!updating.value) return false
-  const formValues = { ...note.value, keywords: keywords.value.join(', ') }
+  const formValues = { ...note.value, keywords: keywordsValidated.value }
+  delete props.selectedNote.date
   return JSON.stringify(formValues) === JSON.stringify(props.selectedNote)
 })
 
 function startFromPreset() {
   updating.value = true
   note.value = new Note({ ...props.selectedNote })
-  keywordsString.value = note.value.keywords as string
+  rawKeywords.value = note.value.keywords as string ?? ''
   formLocked.value = true
 }
 
@@ -54,7 +54,7 @@ function focusOnTitle() {
 }
 
 function setKeywords() {
-  note.value.keywords = keywords.value.length > 0 ? keywords.value.join(', ') : null
+  note.value.keywords = keywordsValidated.value || null
 }
 
 async function handleSubmit() {
@@ -75,7 +75,7 @@ function unlockForm() {
   focusOnTitle()
 }
 
-function onDelete(id: string) {
+function onDelete() {
   confirming.value = true
 }
 
@@ -125,28 +125,32 @@ function onDelete(id: string) {
           type="text"
           placeholder="programming, self-development, health"
           autocomplete="off"
-          v-model.trim="keywordsString">
+          v-model.trim="rawKeywords">
+
           <div class="hint">
             <span class="hint__action" @mouseenter="showKeywords = true" @mouseleave="showKeywords = false">i</span>
-            <div v-show="showKeywords && keywords.length" class="hint__text">
-              <span v-for="keyword, i in keywords" :key="i" class="keyword">{{ keyword }}</span>
+            <div v-show="showKeywords && keywordsValidated" class="hint__text">
+              <span v-for="keyword, i in keywordsValidated.split(',')" :key="i" class="keyword">{{ keyword }}</span>
             </div>
           </div>
 
-          <label class="form__label" for="reference">Reference</label>
-          <input
-          id="reference"
-          class="form__input form__input_border-bottom"
-          type="text"
-          placeholder="(Optional)"
-          v-model.trim="note.reference"
-          autocomplete="off"
-          :disabled="loading || formLocked">
         </div>
-
       </Transition>
+
+      <div v-show="!formLocked || note.reference" class="note-reference">
+        <label v-show="!formLocked" class="form__label" for="reference">Reference</label>
+        <input
+        id="reference"
+        class="form__input form__input_border-bottom"
+        type="text"
+        placeholder="(Optional)"
+        v-model.trim="note.reference"
+        autocomplete="off"
+        :disabled="loading || formLocked">
+      </div>
+
     </fieldset>
-    <p class="note-reference" v-show="formLocked && note.reference">{{ note.reference }}</p>
+
   </form>
 
   <Transition>
@@ -174,7 +178,7 @@ function onDelete(id: string) {
         v-if="selectedNote"
         class="button button_secondary button_rounded"
         type="button"
-        @click="onDelete(selectedNote.id)"
+        @click="onDelete"
         >D</button>
       </div>
     </div>
@@ -239,7 +243,7 @@ function onDelete(id: string) {
   font-size: .8rem;
   color: var(--light);
   position: absolute;
-  bottom: 64px;
+  bottom: 44px;
 }
 
 .note-type {
