@@ -1,15 +1,19 @@
 <script setup lang="ts">
 
-const emit = defineEmits(['on-confirm', 'on-cancel'])
+const emit = defineEmits(['confirm', 'dismiss'])
 
 defineProps<{
+  confirming: boolean,
   title: String,
   message: String
 }>()
 
 function onConfirm() {
-  emit('on-confirm')
-  emit('on-cancel')
+  emit('confirm')
+}
+
+function onDismiss() {
+  emit('dismiss')
 }
 
 </script>
@@ -23,12 +27,13 @@ function onConfirm() {
       type="button"
       class="button
       button_secondary"
-      @click="emit('on-cancel')"
-      >Cancel</button>
+      @click="onDismiss"
+      >Dismiss</button>
       <button
+      v-if="confirming"
       type="button"
-      class="button"
-      @click="() => emit('on-confirm')">Confirm</button>
+      class="button button_alert"
+      @click="onConfirm">Confirm</button>
     </div>
   </div>
 </template>
@@ -52,7 +57,7 @@ function onConfirm() {
 .confirm-box__actions {
   margin-top: 12px;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-evenly;
 }
 
 </style>

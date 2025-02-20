@@ -146,6 +146,17 @@ function hideQueryForm() {
   background-color: var(--darkest);
 }
 
+.button_alert {
+  background-color: var(--darkest);
+}
+
+.button_alert:hover {
+  transition: background-color .3s;
+  color: darksalmon;
+  background-color: #4f0f0f;
+  box-shadow: none;
+}
+
 .button_mx-auto {
   margin-left: auto;
   margin-right: auto;

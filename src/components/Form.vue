@@ -3,7 +3,7 @@ import { computed, nextTick, onMounted, ref } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
 import { alertOnSuccess, alertOnFailure } from '../helpers/responses.ts'
 import Note from '../models/Note.ts'
-import Confirm from './Confirm.vue'
+import Prompt from './Prompt.vue'
 
 onMounted(() => {
   if (props.selectedNote != null) startFromPreset()
@@ -185,12 +185,13 @@ function onDelete() {
   </Transition>
 
   <Transition>
-    <dialog class="dialog" :open="confirming" v-show="confirming">
-      <Confirm
+    <dialog class="dialog" :open="confirming" v-if="confirming">
+      <Prompt
       title="Delete permanently?"
       message="Please confirm to proceed."
-      @on-cancel="confirming = false"
-      @on-confirm="emit('destroy', selectedNote.id)" />
+      @dismiss="confirming = false"
+      @confirm="emit('destroy', selectedNote.id)"
+      :confirming="true" />
     </dialog>
   </Transition>
 
