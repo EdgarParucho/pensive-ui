@@ -34,7 +34,6 @@ async function search() {
     if (notesFound) {
       emit('set-notes', { data })
       showAlert({ title: 'Done', message: `Records found: ${data.length}` })
-      setTimeout(() => emit('hide-query-form'), 1250)
     } else {
       showAlert({ title: 'Attention', message: 'Nothing found with that query.' })
     }
