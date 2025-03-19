@@ -26,7 +26,7 @@ function dismissPrompt() {
 }
 
 function setNotes(data: Note[]) {
-  emit('set-notes', data)
+  emit('set-notes', { data })
   showAlert({ title: 'Done', message: `Records found: ${data.length}` })
   setTimeout(() => emit('hide-query-form'), 1250)
 }
