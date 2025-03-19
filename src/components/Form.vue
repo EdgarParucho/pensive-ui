@@ -1,7 +1,6 @@
 <script setup lang='ts'>
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
-import { alertOnSuccess, alertOnFailure } from '../helpers/responses.ts'
 import Note from '../models/Note.ts'
 import Prompt from './Prompt.vue'
 
@@ -20,9 +19,10 @@ const formLocked = ref(true)
 const title = ref<HTMLElement | null>(null)
 const fieldset = ref<HTMLElement | null>(null)
 const showKeywords = ref(false)
-const confirming = ref(false)
 const updating = ref(false)
 const rawKeywords = ref('')
+const alerting = ref(false)
+const alertData = ref({ title: '', message: '', confirming: false })
 
 const keywordsValidated = computed(() => [...new Set(rawKeywords.value
   ?.toLowerCase()
@@ -57,17 +57,33 @@ function setKeywords() {
   note.value.keywords = keywordsValidated.value || null
 }
 
+function showAlert(alertInfo: { title: string, message: string, confirming: boolean }) {
+  alertData.value = alertInfo
+  alerting.value = true
+}
+
+function alertAndClose() {
+  showAlert({ title: 'Done', message: 'Record saved successfully.', confirming: false })
+  setTimeout(() => emit('close-form', note.value), 1250)
+}
+
 async function handleSubmit() {
   setKeywords()
   try {
     const token = await getAccessTokenSilently()
     if (updating.value) await note.value.update(token)
     else await note.value.create(token)
-    alertOnSuccess()
-    emit('close-form', note.value)
+    alertAndClose()
   } catch (error) {
-    alertOnFailure(error as Error)
+    showAlert({ title: 'Attention', message: 'An error occurred. Please try again later.', confirming: false })
   }
+}
+
+async function destroy() {
+  const token = await getAccessTokenSilently()
+  note.value.destroy(token)
+    .then(() => emit('destroy'))
+    .catch(() => showAlert({ title: 'Attention', message: 'An error occurred. Please try again later.', confirming: false }))
 }
 
 function unlockForm() {
@@ -76,13 +92,13 @@ function unlockForm() {
 }
 
 function onDelete() {
-  confirming.value = true
+  showAlert({ title: 'Delete permanently?', message: 'Please confirm to proceed.', confirming: true})
 }
 
 </script>
 
 <template>
-  <form class="form" :class="{ 'form_blur': confirming }" @submit.prevent="handleSubmit">
+  <form class="form" :class="{ 'form_blur': alerting }" @submit.prevent="handleSubmit">
     <fieldset class="form__fieldset" ref="fieldset">
 
       <input
@@ -154,7 +170,7 @@ function onDelete() {
   </form>
 
   <Transition>
-    <div class="actions-panel" v-if="!confirming">
+    <div class="actions-panel" v-if="!alerting">
       <div class="tabs">
         <button
         class="button button_secondary button_rounded"
@@ -185,13 +201,13 @@ function onDelete() {
   </Transition>
 
   <Transition>
-    <dialog class="dialog" :open="confirming" v-if="confirming">
+    <dialog class="dialog" :open="alerting" v-if="alerting">
       <Prompt
-      title="Delete permanently?"
-      message="Please confirm to proceed."
-      @dismiss="confirming = false"
-      @confirm="emit('destroy', selectedNote.id)"
-      :confirming="true" />
+      :title="alertData.title"
+      :message="alertData.message"
+      @dismiss="alerting = false"
+      @confirm="destroy"
+      :confirming="alertData.confirming" />
     </dialog>
   </Transition>
 

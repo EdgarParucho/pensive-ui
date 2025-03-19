@@ -1,4 +1,4 @@
-import { Create, Update } from '../api'
+import { Create, Update, Destroy } from '../api'
 
 export default class Note {
   id: string | undefined
@@ -23,6 +23,10 @@ export default class Note {
 
   update(token: string) {
     return Update(this, token)
+  }
+
+  destroy(token: string) {
+    return Destroy(this.id!, token)
   }
 
   clear() {

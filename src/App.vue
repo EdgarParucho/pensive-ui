@@ -1,35 +1,39 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
-import { Destroy } from './api'
-import { alertOnSuccess, alertOnFailure } from './helpers/responses.ts'
 import Note from './models/Note.ts'
 import Form from './components/Form.vue'
 import Search from './components/Search.vue'
 import Authenticator from './components/Authenticator.vue'
 import Menu from './components/Menu.vue'
+import Prompt from './components/Prompt.vue'
 import Notes from './components/Notes.vue'
 
-const { isAuthenticated, getAccessTokenSilently } = useAuth0()
+const { isAuthenticated } = useAuth0()
 
 const notes = ref<Note[]>([])
 const showingNoteForm = ref(false)
 const showingQueryForm = ref(false)
 const selectedNote = ref<Note | null>(null)
+const alerting = ref(false)
+const alertData = ref({ title: '', message: '' })
 
 const dialogIsHidden = computed(() => !showingNoteForm.value && !showingQueryForm.value)
+
+function showAlert(alertInfo: { title: string, message: string }) {
+  alertData.value = alertInfo
+  alerting.value = true
+  setTimeout(() => hideNoteForm(), 1250)
+}
 
 function setNotes({ data }: { data: Note[] }) {
   notes.value = data
 }
 
-async function destroy(id: string) {
-  const token = await getAccessTokenSilently()
-  Destroy(id, token)
-    .then(() => setNotes({ data: notes.value.filter(n => n.id !== id )}))
-    .then(() => alertOnSuccess())
-    .then(() => hideNoteForm())
-    .catch(alertOnFailure)
+async function destroy() {
+  setNotes({ data: notes.value.filter(n => n.id !== selectedNote.value!.id as string )})
+  showingNoteForm.value = false
+  showAlert({ title: 'Done', message: 'Record deleted successfully.' })
 }
 
 function showNoteForm(note?: Note) {
@@ -93,6 +97,16 @@ function hideQueryForm() {
         :selected-note="selectedNote" />
       </dialog>
     </Transition>
+
+    <Transition>
+      <dialog class="dialog" :open="alerting" v-if="alerting">
+        <Prompt
+        :title="alertData.title"
+        :message="alertData.message"
+        @dismiss="alerting = false"
+        :confirming="false" />
+    </dialog>
+  </Transition>
 
   </main>
 </template>

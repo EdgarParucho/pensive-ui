@@ -20,6 +20,11 @@ function focusOnField() {
   document.getElementById('search')?.focus()
 }
 
+function showAlert(alertInfo: { title: string, message: string }) {
+  alertData.value = alertInfo
+  alerting.value = true
+}
+
 function dismissPrompt() {
   alerting.value = false
   focusOnField()
@@ -45,11 +50,6 @@ async function search() {
   } finally {
     loading.value = false
   }
-}
-
-function showAlert(alertInfo: { title: string, message: string }) {
-  alertData.value = alertInfo
-  alerting.value = true
 }
 
 </script>
