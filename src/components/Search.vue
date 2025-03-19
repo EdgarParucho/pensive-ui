@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
 import { Read } from '../api'
 import Prompt from './Prompt.vue'
+import Note from '../models/Note'
 
 onMounted(focusOnField)
 
@@ -24,6 +25,12 @@ function dismissPrompt() {
   focusOnField()
 }
 
+function setNotes(data: Note[]) {
+  emit('set-notes', data)
+  showAlert({ title: 'Done', message: `Records found: ${data.length}` })
+  setTimeout(() => emit('hide-query-form'), 1250)
+}
+
 async function search() {
   if (invalidQuery.value) return
   loading.value = true
@@ -31,12 +38,8 @@ async function search() {
     const token = await getAccessTokenSilently()
     const { data } = await Read(token, searchString.value)
     const notesFound = data.length > 0
-    if (notesFound) {
-      emit('set-notes', { data })
-      showAlert({ title: 'Done', message: `Records found: ${data.length}` })
-    } else {
-      showAlert({ title: 'Attention', message: 'Nothing found with that query.' })
-    }
+    if (notesFound) setNotes(data)
+    else showAlert({ title: 'Attention', message: 'Nothing found with that query.' })
   } catch (__) {
     showAlert({ title: 'Attention', message: 'An error occurred. Please try again later.' })
   } finally {

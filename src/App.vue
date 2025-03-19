@@ -17,9 +17,7 @@ const showingNoteForm = ref(false)
 const showingQueryForm = ref(false)
 const selectedNote = ref<Note | null>(null)
 
-const dialogIsHidden = computed(() => {
-  return !showingNoteForm.value && !showingQueryForm.value
-})
+const dialogIsHidden = computed(() => !showingNoteForm.value && !showingQueryForm.value)
 
 function setNotes({ data }: { data: Note[] }) {
   notes.value = data
