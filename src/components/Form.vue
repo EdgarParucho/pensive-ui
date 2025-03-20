@@ -153,7 +153,7 @@ function onDelete() {
         </div>
       </Transition>
 
-      <div v-show="!formLocked || note.reference" class="note-reference">
+      <div v-show="!formLocked || note.reference" class="note-reference" :class="{ 'note-reference_absolute': formLocked}">
         <label v-show="!formLocked" class="form__label" for="reference">Reference</label>
         <input
         id="reference"
@@ -171,31 +171,33 @@ function onDelete() {
 
   <Transition>
     <div class="actions-panel" v-if="!alerting">
-      <div class="tabs">
-        <button
-        class="button button_secondary button_rounded"
-        type="button"
-        @click="emit('close-form')"
-        >B</button>
-        <button
-        v-show="!formLocked"
-        class="button button_rounded"
-        type="button"
-        @click="handleSubmit"
-        :disabled="loading || invalidForm || (updating && unmodified)"
-        >{{ loading ? '...' : 'S' }}</button>
-        <button
-        v-if="formLocked"
-        class="button button_secondary button_rounded"
-        type="button"
-        @click="unlockForm"
-        >U</button>
-        <button
-        v-if="selectedNote"
-        class="button button_secondary button_rounded"
-        type="button"
-        @click="onDelete"
-        >D</button>
+      <div class="actions-panel__layer-1">
+        <div class="tabs">
+          <button
+          class="button button_secondary button_rounded"
+          type="button"
+          @click="emit('close-form')"
+          >B</button>
+          <button
+          v-show="!formLocked"
+          class="button button_rounded"
+          type="button"
+          @click="handleSubmit"
+          :disabled="loading || invalidForm || (updating && unmodified)"
+          >{{ loading ? '...' : 'S' }}</button>
+          <button
+          v-if="formLocked"
+          class="button button_secondary button_rounded"
+          type="button"
+          @click="unlockForm"
+          >U</button>
+          <button
+          v-if="selectedNote"
+          class="button button_secondary button_rounded"
+          type="button"
+          @click="onDelete"
+          >D</button>
+        </div>
       </div>
     </div>
   </Transition>
@@ -256,9 +258,12 @@ function onDelete() {
 }
 
 .note-reference {
-  max-width: 480px;
+  width: 100%;
   font-size: .8rem;
   color: var(--light);
+}
+
+.note-reference_absolute {
   position: absolute;
   bottom: 44px;
 }
@@ -266,10 +271,11 @@ function onDelete() {
 .note-type {
   padding: 0 6px;
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 10px;
+  right: 10px;
   font-size: .8rem;
-  border-left: 2px solid var(--dark);
+  border: 1px solid var(--neutral);
+  border-radius: 2px;
   color: var(--light);
 }
 

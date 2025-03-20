@@ -195,8 +195,8 @@ function hideQueryForm() {
 }
 
 .button_rounded {
-  width: 22px;
-  height: 22px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
 }
 
@@ -210,15 +210,21 @@ function hideQueryForm() {
 }
 
 .form {
-  height: 100%;
-  width: 100%;
-  max-height: 600px;
+  height: 80%;
+  min-height: 316px;
+  width: 96%;
   max-width: 500px;
-  position: relative;
   padding: 12px;
+  position: relative;
   box-shadow: -1px -1px 4px 0 var(--neutral);
   background-color: var(--dark);
   transition: filter .5s;
+}
+
+@media screen and (max-height: 400px) {
+  .form {
+    align-self: start;
+  }
 }
 
 .form_blur {
@@ -279,7 +285,6 @@ function hideQueryForm() {
 
 .form__textarea {
   width: 100%;
-  height: 45%;
   margin-bottom: 1rem;
   border: none;
   outline: none;
@@ -290,49 +295,28 @@ function hideQueryForm() {
 
 .actions-panel {
   position: fixed;
+  bottom: 0;
   width: 100%;
+  height: 38px;
+  background-color: var(--darkest);
+}
+
+.actions-panel__layer-1 {
+  position: absolute;
+  bottom: 0;
   height: 20px;
-  max-width: 372px;
-  bottom: -10px;
-  left: calc(50% - 186px);
+  width: 380px;
+  left: calc(50% - 190px);
   background-color: var(--dark);
   border-radius: 16px 16px 0 0;
-}
-
-.actions-panel::before {
-  content: '';
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-  width: 10px;
-  height: 10px;
-  position: absolute;
-  top: -5px;
-  left: 22px;
-  background-color: var(--dark);
-  transform: rotate(325deg);
-}
-
-.actions-panel::after {
-  content: '';
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
-  width: 10px;
-  height: 10px;
-  position: absolute;
-  top: -5px;
-  right: 22px;
-  background-color: var(--dark);
-  transform: rotate(325deg);
 }
 
 .tabs {
   position: relative;
   margin: -19px auto 0;
   height: 20px;
-  padding-top: 8px;
-  width: 320px;
+  padding-top: 14px;
+  width: 340px;
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -347,7 +331,7 @@ function hideQueryForm() {
   border-radius: 50%;
   background-color: var(--darkest);
   position: absolute;
-  bottom: -10px;
+  bottom: -18px;
   left: -36px;
   z-index: 20;
 }
@@ -360,7 +344,7 @@ function hideQueryForm() {
   border-radius: 50%;
   background-color: var(--darkest);
   position: absolute;
-  bottom: -10px;
+  bottom: -18px;
   right: -36px;
   z-index: 20;
 }
@@ -369,6 +353,7 @@ function hideQueryForm() {
   height: 100vh;
   width: 100vw;
   border: none;
+  padding: 12px;
   position: absolute;
   top: 0;
   display: grid;

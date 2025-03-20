@@ -70,19 +70,21 @@ async function search() {
   </form>
   <Transition>
     <div class="actions-panel" v-if="!alerting">
-      <div class="tabs">
-        <button
-        type="button"
-        class="button button_rounded button_secondary"
-        :disabled="loading"
-        @click="emit('hide-query-form')"
-        >C</button>
-        <button
-        type="submit"
-        class="button button_rounded"
-        :class="{ 'button_pulse': loading }"
-        :disabled="loading || invalidQuery"
-        >S</button>
+      <div class="actions-panel__layer-1">
+        <div class="tabs">
+          <button
+          type="button"
+          class="button button_rounded button_secondary"
+          :disabled="loading"
+          @click="emit('hide-query-form')"
+          >C</button>
+          <button
+          type="submit"
+          class="button button_rounded"
+          :class="{ 'button_pulse': loading }"
+          :disabled="loading || invalidQuery"
+          >S</button>
+        </div>
       </div>
     </div>
   </Transition>
