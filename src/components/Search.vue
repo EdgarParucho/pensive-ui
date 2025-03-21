@@ -66,6 +66,7 @@ async function search() {
     id="search"
     class="form__input form__input_border-bottom"
     v-model.trim="searchString"
+    :disabled="loading"
     @keypress.enter="search">
   </form>
   <Transition>

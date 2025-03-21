@@ -159,6 +159,15 @@ function hideQueryForm() {
   box-shadow: none;
 }
 
+.button_absolute {
+  position: absolute;
+}
+
+.button_centered {
+  left: calc(50% - 32px);
+  top: calc(50% - 11px);
+}
+
 .button_mx-auto {
   margin-left: auto;
   margin-right: auto;
@@ -223,6 +232,14 @@ function hideQueryForm() {
 
 .button_bg-delete {
   background-image: url('./assets/icons8-delete-24.png');
+}
+
+.button_bg-linkedin {
+  background-image: url('./assets/icons8-linkedin-24.png');
+}
+
+.button_bg-website {
+  background-image: url('./assets/icons8-website-24.png');
 }
 
 @keyframes pulse {
