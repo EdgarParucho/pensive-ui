@@ -144,7 +144,7 @@ function onDelete() {
           v-model.trim="rawKeywords">
 
           <div class="hint">
-            <span class="hint__action" @mouseenter="showKeywords = true" @mouseleave="showKeywords = false">i</span>
+            <span class="hint__action" @mouseenter="showKeywords = true" @mouseleave="showKeywords = false">Keywords</span>
             <div v-show="showKeywords && keywordsValidated" class="hint__text">
               <span v-for="keyword, i in keywordsValidated.split(',')" :key="i" class="keyword">{{ keyword }}</span>
             </div>
@@ -174,29 +174,29 @@ function onDelete() {
       <div class="actions-panel__layer-1">
         <div class="tabs">
           <button
-          class="button button_secondary button_rounded"
+          class="button button_rounded button_icon button_bg-back"
           type="button"
           @click="emit('close-form')"
-          >B</button>
+          >Back</button>
           <button
           v-show="!formLocked"
-          class="button button_rounded"
+          class="button button_rounded button_icon button_bg-check"
           type="button"
           @click="handleSubmit"
           :disabled="loading || invalidForm || (updating && unmodified)"
-          >{{ loading ? '...' : 'S' }}</button>
+          >{{ loading ? 'Loading' : 'Save' }}</button>
           <button
           v-if="formLocked"
-          class="button button_secondary button_rounded"
+          class="button button_rounded button_icon button_bg-edit"
           type="button"
           @click="unlockForm"
-          >U</button>
+          >Update</button>
           <button
           v-if="selectedNote"
-          class="button button_secondary button_rounded"
+          class="button button_alert button_rounded button_icon button_bg-delete"
           type="button"
           @click="onDelete"
-          >D</button>
+          >Delete</button>
         </div>
       </div>
     </div>
@@ -226,14 +226,15 @@ function onDelete() {
 .hint__action {
   margin-left: 12px;
   cursor: default;
+  background-color: transparent;
   display: inline-block;
-  text-align: center;
-  font-size: .8rem;
-  color: var(--light);
-  border: 1px solid var(--neutral);
-  height: 20px;
-  width: 20px;
-  border-radius: 50%;
+  color: transparent;
+  height: 16px;
+  width: 16px;
+  background-image: url('../assets/icons8-eye-24.png');
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
 }
 
 .hint__text {

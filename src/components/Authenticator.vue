@@ -9,7 +9,7 @@ const { isLoading, loginWithRedirect, isAuthenticated, logout } = useAuth0()
   <div>
     <button
     v-if="isAuthenticated"
-    class="button button_secondary"
+    class="button button_secondary button_ml-auto button_icon button_bg-logout"
     type="button"
     @click="() => logout()"
     >Logout</button>

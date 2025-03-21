@@ -137,35 +137,25 @@ function hideQueryForm() {
   border: 1px solid var(--dark);
   border-radius: 2px;
   display: block;
-  background-color: var(--dark);
   color: var(--light);
+  background-color: var(--dark);
   cursor: pointer;
   transition: box-shadow .5s;
   outline: none;
+  font-size: .7rem;
+  box-shadow: 0 -1px 3px var(--neutral);
 }
 
 .button:focus, .button:hover {
-  box-shadow: 0px 0px 1px 1px var(--neutral);
+  box-shadow: 0 -1px 3px cyan;
+}
+
+.button_alert:focus, .button_alert:hover {
+  box-shadow: 0 -1px 3px #Cf0f0f;
 }
 
 .button:disabled {
-  color: var(--neutral);
   cursor: not-allowed;
-  box-shadow: none;
-}
-
-.button_secondary {
-  background-color: var(--darkest);
-}
-
-.button_alert {
-  background-color: var(--darkest);
-}
-
-.button_alert:hover {
-  transition: background-color .3s;
-  color: darksalmon;
-  background-color: #4f0f0f;
   box-shadow: none;
 }
 
@@ -198,6 +188,41 @@ function hideQueryForm() {
   width: 26px;
   height: 26px;
   border-radius: 50%;
+}
+
+.button_icon {
+  font-size: 0;
+  background-repeat: no-repeat;
+  background-size: 16px;
+  background-position: center;
+}
+
+.button_bg-logout {
+  background-image: url('./assets/icons8-logout-24.png');
+}
+
+.button_bg-search {
+  background-image: url('./assets/icons8-view-24.png');
+}
+
+.button_bg-add {
+  background-image: url('./assets/icons8-add-24.png');
+}
+
+.button_bg-back {
+  background-image: url('./assets/icons8-back-24.png');
+}
+
+.button_bg-check {
+  background-image: url('./assets/icons8-check-24.png');
+}
+
+.button_bg-edit {
+  background-image: url('./assets/icons8-edit-24.png');
+}
+
+.button_bg-delete {
+  background-image: url('./assets/icons8-delete-24.png');
 }
 
 @keyframes pulse {

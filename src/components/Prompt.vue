@@ -31,8 +31,7 @@ function onDismiss() {
     <div v-if="confirming" class="confirm-box__actions">
       <button
       type="button"
-      class="button
-      button_secondary"
+      class="button"
       @click="onDismiss"
       >Dismiss</button>
       <button

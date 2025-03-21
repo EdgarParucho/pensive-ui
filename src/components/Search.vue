@@ -74,16 +74,16 @@ async function search() {
         <div class="tabs">
           <button
           type="button"
-          class="button button_rounded button_secondary"
+          class="button button_rounded button_secondary button_icon button_bg-back"
           :disabled="loading"
           @click="emit('hide-query-form')"
-          >C</button>
+          >Back</button>
           <button
           type="submit"
-          class="button button_rounded"
+          class="button button_rounded button_icon button_bg-search"
           :class="{ 'button_pulse': loading }"
           :disabled="loading || invalidQuery"
-          >S</button>
+          >Search</button>
         </div>
       </div>
     </div>

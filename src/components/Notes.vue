@@ -27,11 +27,12 @@ const emit = defineEmits(['read-note'])
   background-color: var(--dark);
   padding: 6px;
   cursor: pointer;
-  transition: box-shadow .4s;
+  transition: box-shadow .5s;
+  box-shadow: -1px 0 4px 0 var(--neutral);
 }
 
 .list__item:hover {
-  box-shadow: -1px 0 4px 0 var(--neutral);
+  box-shadow: -1px 0 4px 0 var(--light);
 }
 
 .list__item-title {
