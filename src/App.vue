@@ -1,39 +1,52 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
+import { Destroy } from './api/account'
 import Note from './models/Note.ts'
 import Form from './components/Form.vue'
 import Search from './components/Search.vue'
 import Authenticator from './components/Authenticator.vue'
+import Settings from './components/Settings.vue'
 import Menu from './components/Menu.vue'
 import Prompt from './components/Prompt.vue'
 import Notes from './components/Notes.vue'
 
-const { isAuthenticated } = useAuth0()
+const { isAuthenticated, getAccessTokenSilently, logout } = useAuth0()
 
 const notes = ref<Note[]>([])
 const showingNoteForm = ref(false)
 const showingQueryForm = ref(false)
 const selectedNote = ref<Note | null>(null)
-const alerting = ref(false)
-const alertData = ref({ title: '', message: '' })
+const showingSettings = ref(false)
+const promptData = ref({
+  active: false,
+  title: '',
+  message: '',
+  onConfirm: () => {},
+  confirming: false
+})
+
+function toggleSettings() {
+  showingSettings.value = !showingSettings.value
+}
 
 const dialogIsHidden = computed(() => !showingNoteForm.value && !showingQueryForm.value)
-
-function showAlert(alertInfo: { title: string, message: string }) {
-  alertData.value = alertInfo
-  alerting.value = true
-  setTimeout(() => hideNoteForm(), 1250)
-}
 
 function setNotes({ data }: { data: Note[] }) {
   notes.value = data
 }
 
-async function destroy() {
+async function destroyNote() {
   setNotes({ data: notes.value.filter(n => n.id !== selectedNote.value!.id as string )})
   showingNoteForm.value = false
-  showAlert({ title: 'Done', message: 'Record deleted successfully.' })
+  promptData.value = {
+    active: true,
+    title: 'Done',
+    message: 'Record deleted successfully.',
+    confirming: false,
+    onConfirm: () => {}
+  }
+  setTimeout(() => hideNoteForm(), 1250)
 }
 
 function showNoteForm(note?: Note) {
@@ -61,14 +74,41 @@ function hideQueryForm() {
   showingQueryForm.value = false
 }
 
+function askConfirmationToDeleteAccount() {
+  promptData.value = {
+    active: true,
+    title: 'Delete account?',
+    message: "To delete your account permanently, click 'Confirm'.",
+    onConfirm: deleteAccount,
+    confirming: true
+  }
+}
+
+async function deleteAccount() {
+  try {
+    const token = await getAccessTokenSilently()
+    await Destroy(token)
+    logout()
+  } catch (error) {
+    console.log(error);
+    alert('Error')
+  }
+}
+
 </script>
 
 <template>
-  <main class="base-container">
+  <main class="base-container" :class="{ 'base-container_blur': promptData.active }">
 
     <Transition>
       <header v-if="dialogIsHidden">
-        <Authenticator />
+        <button
+          class="button button_secondary button_ml-auto button_icon button_bg-cog"
+          type="button"
+          @click="toggleSettings"
+          @keyup.esc="toggleSettings"
+          >Settings</button>
+        <Authenticator v-if="!isAuthenticated" />
         <Menu
         v-if="isAuthenticated"
         @show-query-form="showQueryForm"
@@ -90,25 +130,33 @@ function hideQueryForm() {
     </Transition>
 
     <Transition>
+      <Settings
+      v-if="showingSettings && dialogIsHidden"
+      @ask-confirmation-to-delete-account="askConfirmationToDeleteAccount" />
+    </Transition>
+    
+    <Transition>
       <dialog class="dialog" :open="showingNoteForm" v-if="showingNoteForm">
         <Form
         @close-form="hideNoteForm"
-        @destroy="destroy"
+        @destroy="destroyNote"
         :selected-note="selectedNote" />
       </dialog>
     </Transition>
 
-    <Transition>
-      <dialog class="dialog" :open="alerting" v-if="alerting">
-        <Prompt
-        :title="alertData.title"
-        :message="alertData.message"
-        @dismiss="alerting = false"
-        :confirming="false" />
+  </main>
+
+  <Transition>
+    <dialog class="dialog" :open="promptData.active" v-if="promptData.active">
+      <Prompt
+      :title="promptData.title"
+      :message="promptData.message"
+      :confirming="promptData.confirming"
+      @dismiss="promptData.active = false"
+      @confirm="promptData.onConfirm" />
     </dialog>
   </Transition>
 
-  </main>
 </template>
 
 <style>
@@ -129,6 +177,11 @@ function hideQueryForm() {
   padding: 6px;
   position: absolute;
   display: grid;
+  transition: filter .2s;
+}
+
+.base-container_blur {
+  filter: blur(4px);
 }
 
 .button {
@@ -240,6 +293,18 @@ function hideQueryForm() {
 
 .button_bg-website {
   background-image: url('./assets/icons8-website-24.png');
+}
+
+.button_bg-cog {
+  background-image: url('./assets/icons8-cog-24.png');
+}
+
+.button_bg-account-minus {
+  background-image: url('./assets/icons8-denied-24.png');
+}
+
+.button_bg-key {
+  background-image: url('./assets/icons8-key-24.png');
 }
 
 @keyframes pulse {
