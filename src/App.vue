@@ -103,12 +103,13 @@ async function deleteAccount() {
     <Transition>
       <header v-if="dialogIsHidden">
         <button
-          class="button button_secondary button_ml-auto button_icon button_bg-cog"
-          type="button"
-          @click="toggleSettings"
-          @keyup.esc="toggleSettings"
-          >Settings</button>
-        <Authenticator v-if="!isAuthenticated" />
+        v-if="isAuthenticated"
+        class="button button_secondary button_ml-auto button_icon button_bg-cog"
+        type="button"
+        @click="toggleSettings"
+        @keyup.esc="toggleSettings"
+        >Settings</button>
+        <Authenticator v-else />
         <Menu
         v-if="isAuthenticated"
         @show-query-form="showQueryForm"
