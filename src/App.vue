@@ -7,6 +7,7 @@ import Form from './components/Form.vue'
 import Search from './components/Search.vue'
 import Authenticator from './components/Authenticator.vue'
 import Settings from './components/Settings.vue'
+import Password from './components/Password.vue'
 import Menu from './components/Menu.vue'
 import Prompt from './components/Prompt.vue'
 import Notes from './components/Notes.vue'
@@ -18,6 +19,7 @@ const showingNoteForm = ref(false)
 const showingQueryForm = ref(false)
 const selectedNote = ref<Note | null>(null)
 const showingSettings = ref(false)
+const showingPasswordForm = ref(false)
 const promptData = ref({
   active: false,
   title: '',
@@ -30,7 +32,7 @@ function toggleSettings() {
   showingSettings.value = !showingSettings.value
 }
 
-const dialogIsHidden = computed(() => !showingNoteForm.value && !showingQueryForm.value)
+const dialogIsHidden = computed(() => !showingNoteForm.value && !showingQueryForm.value && !showingPasswordForm.value)
 
 function setNotes({ data }: { data: Note[] }) {
   notes.value = data
@@ -84,6 +86,10 @@ function askConfirmationToDeleteAccount() {
   }
 }
 
+function showPasswordForm() {
+  showingPasswordForm.value = true
+}
+
 async function deleteAccount() {
   try {
     const token = await getAccessTokenSilently()
@@ -123,7 +129,7 @@ async function deleteAccount() {
       :notes="notes"
       @read-note="(note: Note) => showNoteForm(note)"/>
     </Transition>
-    
+
     <Transition>
       <dialog class="dialog" :open="showingQueryForm" v-if="showingQueryForm">
         <Search @set-notes="setNotes" @hide-query-form="hideQueryForm" />
@@ -131,9 +137,16 @@ async function deleteAccount() {
     </Transition>
 
     <Transition>
+      <dialog class="dialog" :open="showingPasswordForm" v-if="showingPasswordForm">
+        <Password @close-form="showingPasswordForm = false" />
+      </dialog>
+    </Transition>
+
+    <Transition>
       <Settings
       v-if="showingSettings && dialogIsHidden"
-      @ask-confirmation-to-delete-account="askConfirmationToDeleteAccount" />
+      @ask-confirmation-to-delete-account="askConfirmationToDeleteAccount"
+      @show-password-form="showPasswordForm"/>
     </Transition>
     
     <Transition>
@@ -211,6 +224,7 @@ async function deleteAccount() {
 .button:disabled {
   cursor: not-allowed;
   box-shadow: none;
+  opacity: .4;
 }
 
 .button_absolute {
@@ -340,7 +354,8 @@ async function deleteAccount() {
 }
 
 .form_sm {
-  max-height: 100px;
+  min-height: 60px;
+  max-height: 160px;
   max-width: 360px;
 }
 

@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { defineEmits } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
 
-const emit = defineEmits(['askConfirmationToDeleteAccount'])
+const emit = defineEmits(['showPasswordForm', 'askConfirmationToDeleteAccount'])
 const { logout } = useAuth0()
 
 </script>
@@ -12,6 +11,7 @@ const { logout } = useAuth0()
     <button
     class="button button_secondary button_ml-auto button_icon button_bg-key"
     type="button"
+    @click="emit('showPasswordForm')"
     >Password</button>
     <button
     class="button button_alert button_ml-auto button_icon button_bg-account-minus"
