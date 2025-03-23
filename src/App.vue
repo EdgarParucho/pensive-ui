@@ -110,7 +110,7 @@ async function deleteAccount() {
       <header v-if="dialogIsHidden">
         <button
         v-if="isAuthenticated"
-        class="button button_secondary button_ml-auto button_icon button_bg-cog"
+        class="button button_ml-auto button_icon button_bg-cog"
         type="button"
         @click="toggleSettings"
         @keyup.esc="toggleSettings"
@@ -202,7 +202,7 @@ async function deleteAccount() {
   height: 22px;
   width: 64px;
   border: 1px solid var(--dark);
-  border-radius: 2px;
+  border-radius: 20px;
   display: block;
   color: var(--light);
   background-color: var(--dark);
@@ -210,7 +210,6 @@ async function deleteAccount() {
   transition: box-shadow .5s;
   outline: none;
   font-size: .7rem;
-  box-shadow: 0 -1px 3px var(--neutral);
 }
 
 .button:focus, .button:hover {
@@ -223,8 +222,6 @@ async function deleteAccount() {
 
 .button:disabled {
   cursor: not-allowed;
-  box-shadow: none;
-  opacity: .4;
 }
 
 .button_absolute {
@@ -247,7 +244,7 @@ async function deleteAccount() {
 
 .button_pulse {
   animation-name: pulse;
-  animation-duration: .7s;
+  animation-duration: .5s;
   animation-iteration-count: infinite;
   animation-timing-function: ease-in-out;
   animation-direction: alternate;
@@ -302,14 +299,6 @@ async function deleteAccount() {
   background-image: url('./assets/icons8-delete-24.png');
 }
 
-.button_bg-linkedin {
-  background-image: url('./assets/icons8-linkedin-24.png');
-}
-
-.button_bg-website {
-  background-image: url('./assets/icons8-website-24.png');
-}
-
 .button_bg-cog {
   background-image: url('./assets/icons8-cog-24.png');
 }
@@ -324,10 +313,10 @@ async function deleteAccount() {
 
 @keyframes pulse {
   from {
-    background-color: var(--dark);
+    box-shadow: 0 -1px 3px cyan;
   }
   to {
-    background-color: var(--neutral);
+    box-shadow: 0 -1px 3px var(--dark);
   }
 }
 

@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
-
+import { ref, onMounted } from 'vue';
 
 const emit = defineEmits(['confirm', 'dismiss'])
 
@@ -10,11 +9,14 @@ const props = defineProps<{
   message: String
 }>()
 
+const loading = ref(false)
+
 onMounted(() => {
   if (!props.confirming) setTimeout(() => emit('dismiss'), 1250)
 })
 
 function onConfirm() {
+  loading.value = true
   emit('confirm')
 }
 
@@ -37,6 +39,7 @@ function onDismiss() {
       <button
       type="button"
       class="button button_alert"
+      :class="{ 'button_pulse': loading }"
       @click="onConfirm">Confirm</button>
     </div>
   </div>

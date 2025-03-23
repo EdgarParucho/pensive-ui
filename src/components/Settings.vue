@@ -9,7 +9,7 @@ const { logout } = useAuth0()
 <template>
   <div class="settings-menu">
     <button
-    class="button button_secondary button_ml-auto button_icon button_bg-key"
+    class="button button_ml-auto button_icon button_bg-key"
     type="button"
     @click="emit('showPasswordForm')"
     >Password</button>
@@ -19,7 +19,7 @@ const { logout } = useAuth0()
     @click="emit('askConfirmationToDeleteAccount')"
     >Delete account</button>
     <button
-    class="button button_secondary button_ml-auto button_icon button_bg-logout"
+    class="button button_ml-auto button_icon button_bg-logout"
     type="button"
     @click="() => logout()"
     >Logout</button>

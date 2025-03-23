@@ -2,7 +2,6 @@
 import { useAuth0 } from '@auth0/auth0-vue'
 
 const { isLoading, loginWithRedirect } = useAuth0()
-
 </script>
 
 <template>
@@ -12,10 +11,11 @@ const { isLoading, loginWithRedirect } = useAuth0()
       </div>
       <button
       class="button button_absolute button_centered"
+      :class="{ 'button_pulse': isLoading }"
       type="button"
       :disabled="isLoading"
       @click="() => loginWithRedirect()"
-      >Start</button>
+      >{{ isLoading ? 'Loading' : 'Start' }}</button>
     </div>
     <footer class="actions-panel">
     <div class="actions-panel__layer-1">
@@ -24,12 +24,12 @@ const { isLoading, loginWithRedirect } = useAuth0()
         <a
         target="_blank"
         href="https://linkedin.com/in/edgarparucho"
-        class="button button_rounded button_secondary button_icon button_bg-linkedin"
+        class="link"
         >LinkedIn</a>
         <a
         target="_blank"
         href="https://edgarparucho.github.io"
-        class="button button_rounded button_icon button_bg-website"
+        class="link"
         >Website</a>
       </div>
     </div>
@@ -61,4 +61,18 @@ const { isLoading, loginWithRedirect } = useAuth0()
     transform: translateY(140px);
   }
 }
+
+.link {
+  color: var(--neutral);
+  text-decoration: none;
+  font-size: .9rem;
+  font-weight: 400;
+  transition: color .2s;
+}
+
+.link:hover {
+  text-decoration: cyan underline;
+  color: var(--light);
+}
+
 </style>

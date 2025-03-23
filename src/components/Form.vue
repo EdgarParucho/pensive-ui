@@ -68,6 +68,7 @@ function alertAndClose() {
 }
 
 async function handleSubmit() {
+  loading.value = true
   setKeywords()
   try {
     const token = await getAccessTokenSilently()
@@ -76,6 +77,8 @@ async function handleSubmit() {
     alertAndClose()
   } catch (error) {
     showAlert({ title: 'Attention', message: 'An error occurred. Please try again later.', confirming: false })
+  } finally {
+    loading.value = false
   }
 }
 
@@ -113,7 +116,7 @@ function onDelete() {
       :disabled="loading || formLocked">
 
       <p v-show="formLocked" class="note-type">{{ note.type }}</p>
-      
+
       <textarea
       id="body"
       class="form__textarea"
@@ -181,6 +184,7 @@ function onDelete() {
           <button
           v-show="!formLocked"
           class="button button_rounded button_icon button_bg-check"
+          :class="{ 'button_pulse': loading }"
           type="button"
           @click="handleSubmit"
           :disabled="loading || invalidForm || (updating && unmodified)"
@@ -196,6 +200,7 @@ function onDelete() {
           class="button button_alert button_rounded button_icon button_bg-delete"
           type="button"
           @click="onDelete"
+          :disabled="loading"
           >Delete</button>
         </div>
       </div>

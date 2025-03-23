@@ -21,9 +21,8 @@ const emit = defineEmits(['show-query-form', 'show-note-form'])
 .menu {
   height: 24px;
   width: 140px;
-  margin: 0 auto;
+  margin: 100px auto 0;
   display: flex;
-  align-items: center;
   justify-content: space-between;
   border: 1px solid var(--dark);
   border-radius: 20px;
