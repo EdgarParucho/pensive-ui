@@ -22,7 +22,7 @@ const showKeywords = ref(false)
 const updating = ref(false)
 const rawKeywords = ref('')
 const alerting = ref(false)
-const alertData = ref({ title: '', message: '', confirming: false })
+const alertData = ref({ title: '', message: '', confirming: false, onConfirm: () => {} })
 
 const keywordsValidated = computed(() => [...new Set(rawKeywords.value
   ?.toLowerCase()
@@ -36,10 +36,10 @@ const invalidForm = computed(() => ['title', 'body', 'type']
   .some((mandatoryField) => !note.value[mandatoryField as keyof Note]))
 
 const unmodified = computed(() => {
-  if (!updating.value) return false
-  const formValues = { ...note.value, keywords: keywordsValidated.value }
-  delete props.selectedNote.date
-  return JSON.stringify(formValues) === JSON.stringify(props.selectedNote)
+  const formValues = JSON.stringify({ ...note.value, keywords: keywordsValidated.value })
+  if (props.selectedNote) delete props.selectedNote.date
+  const originalValues = JSON.stringify(updating.value ? { ...props.selectedNote } : new Note({ keywords: keywordsValidated.value }))
+  return formValues === originalValues
 })
 
 function startFromPreset() {
@@ -57,7 +57,7 @@ function setKeywords() {
   note.value.keywords = keywordsValidated.value || null
 }
 
-function showAlert(alertInfo: { title: string, message: string, confirming: boolean }) {
+function showAlert(alertInfo: { title: string, message: string, confirming: boolean, onConfirm?: () => void }) {
   alertData.value = alertInfo
   alerting.value = true
 }
@@ -86,7 +86,11 @@ async function destroy() {
   const token = await getAccessTokenSilently()
   note.value.destroy(token)
     .then(() => emit('destroy'))
-    .catch(() => showAlert({ title: 'Attention', message: 'An error occurred. Please try again later.', confirming: false }))
+    .catch(() => {showAlert({
+      title: 'Attention',
+      message: 'An error occurred. Please try again later.',
+      confirming: false
+    })})
 }
 
 function unlockForm() {
@@ -95,7 +99,22 @@ function unlockForm() {
 }
 
 function onDelete() {
-  showAlert({ title: 'Delete permanently?', message: 'Please confirm to proceed.', confirming: true})
+  showAlert({
+    title: 'Delete permanently?',
+    message: 'Please confirm to proceed.',
+    confirming: true,
+    onConfirm: () => destroy()
+  })
+}
+
+function closeForm() {
+  if (unmodified.value) emit('close-form')
+  else showAlert({
+    title: 'Discard changes?',
+    message: 'Please confirm to proceed.',
+    confirming: true,
+    onConfirm: () => emit('close-form')
+  })
 }
 
 </script>
@@ -179,7 +198,7 @@ function onDelete() {
           <button
           class="button button_rounded button_icon button_bg-back"
           type="button"
-          @click="emit('close-form')"
+          @click="closeForm"
           >Back</button>
           <button
           v-show="!formLocked"
@@ -213,7 +232,7 @@ function onDelete() {
       :title="alertData.title"
       :message="alertData.message"
       @dismiss="alerting = false"
-      @confirm="destroy"
+      @confirm="alertData.onConfirm"
       :confirming="alertData.confirming" />
     </dialog>
   </Transition>
