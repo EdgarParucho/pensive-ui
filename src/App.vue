@@ -114,6 +114,7 @@ async function deleteAccount() {
         type="button"
         @click="toggleSettings"
         @keyup.esc="toggleSettings"
+        @blur="toggleSettings"
         >Settings</button>
         <Authenticator v-else />
         <Menu
@@ -144,9 +145,9 @@ async function deleteAccount() {
 
     <Transition>
       <Settings
-      v-if="showingSettings && dialogIsHidden"
+      v-show="showingSettings && dialogIsHidden"
       @ask-confirmation-to-delete-account="askConfirmationToDeleteAccount"
-      @show-password-form="showPasswordForm"/>
+      @show-password-form="showPasswordForm" />
     </Transition>
     
     <Transition>

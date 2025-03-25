@@ -7,31 +7,35 @@ const { logout } = useAuth0()
 </script>
 
 <template>
-  <div class="settings-menu">
+  <aside class="settings-menu">
     <button
     class="button button_ml-auto button_icon button_bg-key"
     type="button"
+    title="Change password"
     @click="emit('showPasswordForm')"
     >Password</button>
     <button
     class="button button_alert button_ml-auto button_icon button_bg-account-minus"
     type="button"
+    title="Delete account"
     @click="emit('askConfirmationToDeleteAccount')"
     >Delete account</button>
     <button
     class="button button_ml-auto button_icon button_bg-logout"
     type="button"
+    title="Logout"
     @click="() => logout()"
     >Logout</button>
-  </div>
+  </aside>
 </template>
 
 <style scoped>
 .settings-menu {
   position: absolute;
-  top: 40px;
-  right: 7px;
-  display: grid;
-  gap: 10px;
+  top: 6px;
+  right: 80px;
+  height: 32px;
+  display: flex;
+  gap: 4px;
 }
 </style>
