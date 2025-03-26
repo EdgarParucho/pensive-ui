@@ -81,8 +81,8 @@ async function search() {
           >Back</button>
           <button
           type="submit"
-          class="button button_rounded button_icon button_bg-search"
-          :class="{ 'button_pulse': loading }"
+          class="button button_rounded button_icon button_bg-check"
+          :class="{ 'button_pulse': loading, 'button_hightlight': !invalidQuery }"
           :disabled="loading || invalidQuery"
           >Search</button>
         </div>

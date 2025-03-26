@@ -36,9 +36,9 @@ const invalidForm = computed(() => ['title', 'body', 'type']
   .some((mandatoryField) => !note.value[mandatoryField as keyof Note]))
 
 const unmodified = computed(() => {
-  const formValues = JSON.stringify({ ...note.value, keywords: keywordsValidated.value })
-  if (props.selectedNote) delete props.selectedNote.date
-  const originalValues = JSON.stringify(updating.value ? { ...props.selectedNote } : new Note({ keywords: keywordsValidated.value }))
+  const formValues = JSON.stringify({ ...note.value, keywords: keywordsValidated.value || null })
+  if (updating.value) delete props.selectedNote.date
+  const originalValues = JSON.stringify(updating.value ? { ...props.selectedNote } : new Note({}))
   return formValues === originalValues
 })
 
@@ -204,10 +204,10 @@ function closeForm() {
           <button
           v-show="!formLocked"
           class="button button_rounded button_icon button_bg-check"
-          :class="{ 'button_pulse': loading }"
           type="button"
-          @click="handleSubmit"
           :disabled="loading || invalidForm || (updating && unmodified)"
+          :class="{ 'button_pulse': loading, 'button_hightlight': !invalidForm && !unmodified }"
+          @click="handleSubmit"
           >{{ loading ? 'Loading' : 'Save' }}</button>
           <button
           v-if="formLocked"

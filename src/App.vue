@@ -218,15 +218,21 @@ function showPasswordForm() {
 }
 
 .button:focus, .button:hover {
-  box-shadow: 0 -1px 3px cyan;
+  box-shadow: 0 -1px 8px cyan;
 }
 
 .button_alert:focus, .button_alert:hover {
-  box-shadow: 0 -1px 3px #Cf0f0f;
+  box-shadow: 0 -1px 8px #Cf0f0f;
 }
 
 .button:disabled {
-  cursor: not-allowed;
+  box-shadow: none;
+  filter: grayscale(1);
+  cursor: default;
+}
+
+.button_hightlight {
+  box-shadow: 0 -1px 4px cyan;
 }
 
 .button_absolute {
@@ -247,7 +253,8 @@ function showPasswordForm() {
   margin-left: auto;
 }
 
-.button_pulse {
+.button:disabled.button_pulse {
+  filter: none;
   animation-name: pulse;
   animation-duration: .5s;
   animation-iteration-count: infinite;
@@ -281,7 +288,7 @@ function showPasswordForm() {
 }
 
 .button_bg-search {
-  background-image: url('./assets/icons8-view-24.png');
+  background-image: url('./assets/icons8-search-24.png');
 }
 
 .button_bg-add {
@@ -432,8 +439,7 @@ function showPasswordForm() {
   position: relative;
   margin: -19px auto 0;
   height: 20px;
-  padding-top: 14px;
-  box-shadow: 0 -2px 2px cyan;
+  padding-top: 20px;
   width: 340px;
   display: flex;
   justify-content: space-around;
