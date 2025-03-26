@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
-import { Destroy } from './api/account'
 import Note from './models/Note.ts'
 import NoteForm from './components/NoteForm.vue'
 import SearchForm from './components/SearchForm.vue'
@@ -165,7 +164,7 @@ function showPasswordForm() {
 
   <Transition>
     <dialog
-    @click.self="active = false"
+    @click.self="promptData.active = false"
     class="dialog"
     :open="promptData.active" v-if="promptData.active">
       <Prompt

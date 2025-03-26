@@ -57,13 +57,13 @@ function setKeywords() {
   note.value.keywords = keywordsValidated.value || null
 }
 
-function showAlert(alertInfo: { title: string, message: string, confirming: boolean, onConfirm?: () => void }) {
+function showAlert(alertInfo: { title: string, message: string, confirming: boolean, onConfirm: () => void }) {
   alertData.value = alertInfo
   alerting.value = true
 }
 
 function alertAndClose() {
-  showAlert({ title: 'Done', message: 'Record saved successfully.', confirming: false })
+  showAlert({ title: 'Done', message: 'Record saved successfully.', confirming: false, onConfirm: () => {} })
   setTimeout(() => emit('close-form', note.value), 1250)
 }
 
@@ -76,7 +76,7 @@ async function handleSubmit() {
     else await note.value.create(token)
     alertAndClose()
   } catch (error) {
-    showAlert({ title: 'Attention', message: 'An error occurred. Please try again later.', confirming: false })
+    showAlert({ title: 'Attention', message: 'An error occurred. Please try again later.', confirming: false, onConfirm: () => {} })
   } finally {
     loading.value = false
   }
@@ -89,7 +89,8 @@ async function destroy() {
     .catch(() => {showAlert({
       title: 'Attention',
       message: 'An error occurred. Please try again later.',
-      confirming: false
+      confirming: false,
+      onConfirm: () => {}
     })})
 }
 
