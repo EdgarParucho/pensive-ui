@@ -3,16 +3,17 @@ import { ref, computed } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
 import { Destroy } from './api/account'
 import Note from './models/Note.ts'
-import Form from './components/Form.vue'
-import Search from './components/Search.vue'
-import Authenticator from './components/Authenticator.vue'
-import Settings from './components/Settings.vue'
-import Password from './components/Password.vue'
-import Menu from './components/Menu.vue'
+import NoteForm from './components/NoteForm.vue'
+import SearchForm from './components/SearchForm.vue'
+import LoginView from './components/LoginView.vue'
+import SettingsMenu from './components/SettingsMenu.vue'
+import PasswordForm from './components/PasswordForm.vue'
+import DeleteAccount from './components/DeleteAccount.vue'
+import ActionButtons from './components/ActionButtons.vue'
 import Prompt from './components/Prompt.vue'
-import Notes from './components/Notes.vue'
+import NoteList from './components/NoteList.vue'
 
-const { isAuthenticated, getAccessTokenSilently, logout } = useAuth0()
+const { isAuthenticated } = useAuth0()
 
 const notes = ref<Note[]>([])
 const showingNoteForm = ref(false)
@@ -20,6 +21,7 @@ const showingQueryForm = ref(false)
 const selectedNote = ref<Note | null>(null)
 const showingSettings = ref(false)
 const showingPasswordForm = ref(false)
+const showingDeleteAccountForm = ref(false)
 const promptData = ref({
   active: false,
   title: '',
@@ -32,7 +34,9 @@ function toggleSettings() {
   showingSettings.value = !showingSettings.value
 }
 
-const dialogIsHidden = computed(() => !showingNoteForm.value && !showingQueryForm.value && !showingPasswordForm.value)
+const dialogIsHidden = computed(() => {
+  return !showingNoteForm.value && !showingQueryForm.value && !showingPasswordForm.value && !showingDeleteAccountForm.value
+})
 
 function setNotes({ data }: { data: Note[] }) {
   notes.value = data
@@ -76,29 +80,12 @@ function hideQueryForm() {
   showingQueryForm.value = false
 }
 
-function askConfirmationToDeleteAccount() {
-  promptData.value = {
-    active: true,
-    title: 'Delete account?',
-    message: "To delete your account permanently, click 'Confirm'.",
-    onConfirm: deleteAccount,
-    confirming: true
-  }
+function showDeleteAccountForm() {
+  showingDeleteAccountForm.value = true
 }
 
 function showPasswordForm() {
   showingPasswordForm.value = true
-}
-
-async function deleteAccount() {
-  try {
-    const token = await getAccessTokenSilently()
-    await Destroy(token)
-    logout()
-  } catch (error) {
-    console.log(error);
-    alert('Error')
-  }
 }
 
 </script>
@@ -114,10 +101,10 @@ async function deleteAccount() {
         type="button"
         @click="toggleSettings"
         @keyup.esc="toggleSettings"
-        @blur="toggleSettings"
-        >Settings</button>
-        <Authenticator v-else />
-        <Menu
+        @blur="showingSettings = false"
+        >SettingsMenu</button>
+        <LoginView v-else />
+        <ActionButtons
         v-if="isAuthenticated"
         @show-query-form="showQueryForm"
         @show-note-form="showNoteForm" />
@@ -125,34 +112,49 @@ async function deleteAccount() {
     </Transition>
 
     <Transition>
-      <Notes
+      <NoteList
       v-if="notes.length > 0 && dialogIsHidden"
       :notes="notes"
       @read-note="(note: Note) => showNoteForm(note)"/>
     </Transition>
 
     <Transition>
-      <dialog class="dialog" :open="showingQueryForm" v-if="showingQueryForm">
-        <Search @set-notes="setNotes" @hide-query-form="hideQueryForm" />
+      <dialog
+      @click.self="showingQueryForm = false"
+      class="dialog"
+      :open="showingQueryForm" v-if="showingQueryForm">
+        <SearchForm @set-notes="setNotes" @hide-query-form="hideQueryForm" />
       </dialog>
     </Transition>
 
     <Transition>
-      <dialog class="dialog" :open="showingPasswordForm" v-if="showingPasswordForm">
-        <Password @close-form="showingPasswordForm = false" />
+      <dialog
+      @click.self="showingPasswordForm = false"
+      class="dialog"
+      :open="showingPasswordForm" v-if="showingPasswordForm">
+        <PasswordForm @close-form="showingPasswordForm = false" />
       </dialog>
     </Transition>
 
     <Transition>
-      <Settings
+      <dialog
+      @click.self="showingDeleteAccountForm = false"
+      class="dialog"
+      :open="showingDeleteAccountForm" v-if="showingDeleteAccountForm">
+        <DeleteAccount @close-form="showingDeleteAccountForm = false" />
+      </dialog>
+    </Transition>
+
+    <Transition>
+      <SettingsMenu
       v-show="showingSettings && dialogIsHidden"
-      @ask-confirmation-to-delete-account="askConfirmationToDeleteAccount"
+      @show-delete-account-form="showDeleteAccountForm"
       @show-password-form="showPasswordForm" />
     </Transition>
     
     <Transition>
       <dialog class="dialog" :open="showingNoteForm" v-if="showingNoteForm">
-        <Form
+        <NoteForm
         @close-form="hideNoteForm"
         @destroy="destroyNote"
         :selected-note="selectedNote" />
@@ -162,7 +164,10 @@ async function deleteAccount() {
   </main>
 
   <Transition>
-    <dialog class="dialog" :open="promptData.active" v-if="promptData.active">
+    <dialog
+    @click.self="active = false"
+    class="dialog"
+    :open="promptData.active" v-if="promptData.active">
       <Prompt
       :title="promptData.title"
       :message="promptData.message"
