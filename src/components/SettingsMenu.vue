@@ -15,7 +15,7 @@ const { logout } = useAuth0()
     @click="emit('showPasswordForm')"
     >Password</button>
     <button
-    class="button button_alert button_ml-auto button_icon button_bg-account-minus"
+    class="button button_alert button_ml-auto button_icon button_bg-delete-db"
     type="button"
     title="Delete account"
     @click="emit('showDeleteAccountForm')"

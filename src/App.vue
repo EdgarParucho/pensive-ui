@@ -97,7 +97,7 @@ function showPasswordForm() {
       <header v-if="dialogIsHidden">
         <button
         v-if="isAuthenticated"
-        class="button button_ml-auto button_icon button_bg-cog"
+        class="button button_ml-auto button_icon button_bg-avatar"
         type="button"
         @click="toggleSettings"
         @keyup.esc="toggleSettings"
@@ -305,12 +305,12 @@ function showPasswordForm() {
   background-image: url('./assets/icons8-delete-24.png');
 }
 
-.button_bg-cog {
-  background-image: url('./assets/icons8-cog-24.png');
+.button_bg-avatar {
+  background-image: url('./assets/icons8-avatar-24.png');
 }
 
-.button_bg-account-minus {
-  background-image: url('./assets/icons8-denied-24.png');
+.button_bg-delete-db {
+  background-image: url('./assets/icons8-delete-database-24.png');
 }
 
 .button_bg-key {
@@ -434,6 +434,7 @@ function showPasswordForm() {
   margin: -19px auto 0;
   height: 20px;
   padding-top: 14px;
+  box-shadow: 0 -2px 2px cyan;
   width: 340px;
   display: flex;
   justify-content: space-around;
