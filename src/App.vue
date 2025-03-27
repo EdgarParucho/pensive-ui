@@ -229,6 +229,14 @@ function showPasswordForm() {
   margin-left: auto;
 }
 
+.button_lg {
+  width: 96px;
+}
+
+.button_dark {
+  background-color: var(--darkest);
+}
+
 .button:disabled.button_pulse {
   filter: none;
   animation-name: pulse;
@@ -299,6 +307,26 @@ function showPasswordForm() {
   background-image: url('./assets/icons8-key-24.png');
 }
 
+.button_bg-tag {
+  background-image: url('./assets/icons8-tag-24.png');
+}
+
+.button_bg-link {
+  background-image: url('./assets/icons8-link-24.png');
+}
+
+.button_bg-x {
+  background-image: url('./assets/icons8-close-24.png');
+}
+
+.button_bg-clear {
+  background-image: url('./assets/icons8-broom-24.png');
+}
+
+.button_bg-undo {
+  background-image: url('./assets/icons8-undo-24.png');
+}
+
 @keyframes pulse {
   from {
     box-shadow: 0 -1px 3px cyan;
@@ -306,91 +334,6 @@ function showPasswordForm() {
   to {
     box-shadow: 0 -1px 3px var(--dark);
   }
-}
-
-.form {
-  height: 80%;
-  min-height: 316px;
-  width: 96%;
-  max-width: 500px;
-  padding: 12px;
-  position: relative;
-  box-shadow: -1px -1px 4px 0 var(--neutral);
-  background-color: var(--dark);
-  transition: filter .5s;
-}
-
-@media screen and (max-height: 400px) {
-  .form {
-    align-self: start;
-  }
-}
-
-.form_blur {
-  filter: blur(4px);
-}
-
-.form_sm {
-  min-height: 60px;
-  max-height: 160px;
-  max-width: 360px;
-}
-
-.form__fieldset {
-  height: 100%;
-  border: none;
-}
-
-.form__label {
-  margin: 8px 0;
-  font-size: .7rem;
-  font-weight: bold;
-  display: block;
-  color: var(--light);
-}
-
-.form__input {
-  width: 100%;
-  margin-bottom: 1rem;
-  border: none;
-  outline: none;
-  background-color: transparent;
-  color: var(--light);
-}
-
-.form__input::placeholder, .form__textarea::placeholder {
-  font-style: italic;
-  color: var(--neutral);
-}
-
-.form__input_text-lg {
-  font-size: 2.5rem;
-}
-
-.form__input_w-25 {
-  width: 25%;
-}
-
-.form__input_w-50 {
-  width: 50%;
-}
-
-.form__input_border-bottom {
-  border-bottom: 1px solid  var(--dark);
-}
-
-.form__input_border-bottom:focus {
-  border-bottom: 1px solid  cyan;
-}
-
-.form__textarea {
-  width: 100%;
-  margin-bottom: 1rem;
-  border: none;
-  outline: none;
-  background-color: transparent;
-  color: var(--light);
-  resize: none;
 }
 
 .actions-panel {

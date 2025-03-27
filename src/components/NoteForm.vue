@@ -3,6 +3,7 @@ import { computed, nextTick, onMounted, ref } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
 import Note from '../models/Note.ts'
 import Prompt from './Prompt.vue'
+import KeywordsForm from './KeywordsForm.vue'
 
 onMounted(() => {
   if (props.selectedNote != null) startFromPreset()
@@ -18,25 +19,17 @@ const loading = ref(false)
 const formLocked = ref(true)
 const title = ref<HTMLElement | null>(null)
 const fieldset = ref<HTMLElement | null>(null)
-const showKeywords = ref(false)
 const updating = ref(false)
-const rawKeywords = ref('')
 const alerting = ref(false)
 const alertData = ref({ title: '', message: '', confirming: false, onConfirm: () => {} })
-
-const keywordsValidated = computed(() => [...new Set(rawKeywords.value
-  ?.toLowerCase()
-  .split(',')
-  .map(keyword => keyword.trim())
-  .filter(keyword => keyword != ''))]
-  .join(', ')
-)
+const showingKeywordsForm = ref(false)
+const showingReferenceForm = ref(false)
 
 const invalidForm = computed(() => ['title', 'body', 'type']
   .some((mandatoryField) => !note.value[mandatoryField as keyof Note]))
 
 const unmodified = computed(() => {
-  const formValues = JSON.stringify({ ...note.value, keywords: keywordsValidated.value || null })
+  const formValues = JSON.stringify({ ...note.value })
   if (updating.value) delete props.selectedNote.date
   const originalValues = JSON.stringify(updating.value ? { ...props.selectedNote } : new Note({}))
   return formValues === originalValues
@@ -44,17 +37,17 @@ const unmodified = computed(() => {
 
 function startFromPreset() {
   updating.value = true
-  note.value = new Note({ ...props.selectedNote })
-  rawKeywords.value = note.value.keywords as string ?? ''
   formLocked.value = true
+  note.value = new Note({ ...props.selectedNote })
 }
 
 function focusOnTitle() {
   nextTick().then(() => title.value?.focus())
 }
 
-function setKeywords() {
-  note.value.keywords = keywordsValidated.value || null
+function setKeywords(keywords: string) {
+  note.value.keywords = keywords || null
+  showingKeywordsForm.value = false
 }
 
 function showAlert(alertInfo: { title: string, message: string, confirming: boolean, onConfirm: () => void }) {
@@ -69,7 +62,6 @@ function alertAndClose() {
 
 async function handleSubmit() {
   loading.value = true
-  setKeywords()
   try {
     const token = await getAccessTokenSilently()
     if (updating.value) await note.value.update(token)
@@ -132,79 +124,74 @@ function closeForm() {
 </script>
 
 <template>
-  <form class="form" :class="{ 'form_blur': alerting }" @submit.prevent="handleSubmit">
+  <form
+  class="form"
+  :class="{ 'form_blur': alerting || showingKeywordsForm || showingReferenceForm }"
+  @submit.prevent="handleSubmit">
     <fieldset class="form__fieldset" ref="fieldset">
 
-      <input
-      id="title"
-      class="form__input form__input_text-lg"
-      type="text"
-      placeholder="New Record"
-      required
-      v-model.trim="note.title"
-      autocomplete="off"
-      ref="title"
-      :disabled="loading || formLocked">
-
-      <p v-show="formLocked" class="note-type">{{ note.type }}</p>
-
-      <textarea
-      id="body"
-      class="form__textarea"
-      placeholder="Type the content of your record here."
-      required
-      autocomplete="off"
-      v-model.trim="note.body"
-      :disabled="loading || formLocked"></textarea>
-      
-      <Transition>
-        <div v-show="!formLocked" class="transition-container">
-          
-          <label class="form__label" for="type">Type</label>
-          <input
-          type="text"
-          id="type"
-          class="form__input form__input_border-bottom form__input_w-25"
-          v-model.trim="note.type"
-          required>
-
-          <label class="form__label" for="keywords">Keywords</label>
-          <input
-          id="keywords"
-          class="form__input form__input_border-bottom form__input_w-50 form__input_hint"
-          type="text"
-          placeholder="programming, self-development, health"
-          autocomplete="off"
-          v-model.trim="rawKeywords">
-
-          <div class="hint">
-            <span class="hint__action" @mouseenter="showKeywords = true" @mouseleave="showKeywords = false">Keywords</span>
-            <div v-show="showKeywords && keywordsValidated" class="hint__text">
-              <span v-for="keyword, i in keywordsValidated.split(',')" :key="i" class="keyword">{{ keyword }}</span>
-            </div>
-          </div>
-
-        </div>
-      </Transition>
-
-      <div v-show="!formLocked || note.reference" class="note-reference" :class="{ 'note-reference_absolute': formLocked}">
-        <label v-show="!formLocked" class="form__label" for="reference">Reference</label>
+      <div class="form__area">
         <input
-        id="reference"
-        class="form__input form__input_border-bottom"
+        id="title"
+        class="form__input form__input_text-lg"
         type="text"
-        placeholder="(Optional)"
-        v-model.trim="note.reference"
+        placeholder="New Record"
+        required
+        v-model.trim="note.title"
         autocomplete="off"
+        ref="title"
         :disabled="loading || formLocked">
+        
+        <p v-show="formLocked" class="note-type">{{ note.type }}</p>
+        
+        <div class="text-container">
+          <textarea
+          id="body"
+          class="form__textarea"
+          placeholder="Type the content of your record here."
+          required
+          autocomplete="off"
+          v-model.trim="note.body"
+          :disabled="loading || formLocked"></textarea>
+        </div>
       </div>
 
-    </fieldset>
+      <!--
+      <div class="form__area form__area_sm">
 
+        <div v-show="!formLocked || note.reference" class="note-reference" :class="{ 'note-reference_absolute': formLocked}">
+          <label v-show="!formLocked" class="form__label" for="reference">Reference</label>
+          <input
+          id="reference"
+          class="form__input form__input_border-bottom"
+          type="text"
+          placeholder="(Optional)"
+          v-model.trim="note.reference"
+          autocomplete="off"
+          :disabled="loading || formLocked">
+        </div>
+      </div> -->
+
+    </fieldset>
+    <div class="detail-buttons">
+      <button
+      class="button button_dark button_rounded button_icon button_bg-tag"
+      type="button"
+      @click="showingKeywordsForm = true"
+      >Add keywords</button>
+      <button
+      class="button button_dark button_rounded button_icon button_bg-link"
+      type="button"
+      >Add reference</button>
+    </div>
+    
   </form>
 
+
   <Transition>
-    <div class="actions-panel" :class="{ 'actions-panel_blur': alerting }">
+    <div
+    class="actions-panel"
+    :class="{ 'actions-panel_blur': alerting || showingKeywordsForm || showingReferenceForm }">
       <div class="actions-panel__layer-1">
         <div class="tabs">
           <button
@@ -249,9 +236,131 @@ function closeForm() {
     </dialog>
   </Transition>
 
+  <Transition>
+    <dialog class="dialog" :open="showingKeywordsForm" v-if="showingKeywordsForm">
+      <KeywordsForm :form-locked="formLocked" :keywords="note.keywords" @set-keywords="setKeywords" />
+    </dialog>
+  </Transition>
+
 </template>
 
 <style scoped>
+
+.form {
+  min-height: 316px;
+  width: 98%;
+  max-width: 540px;
+  padding: 12px;
+  position: relative;
+  box-shadow: -1px -1px 4px 0 var(--neutral);
+  background-color: var(--dark);
+  transition: filter .5s;
+  align-self: start;
+  justify-self: center;
+}
+
+.form_blur {
+  filter: blur(4px);
+}
+
+.form__fieldset {
+  height: 100%;
+  border: none;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form__area {
+  width: 100%;
+}
+
+.divider {
+  border-color: var(--neutral);
+}
+
+.form__area_sm {
+  justify-self: flex-end;
+  width: 25%;
+}
+
+.form__label {
+  margin: 8px 0;
+  font-size: .7rem;
+  font-weight: bold;
+  display: block;
+  color: var(--light);
+}
+
+.form__input {
+  width: 100%;
+  margin-bottom: 1rem;
+  border: none;
+  outline: none;
+  background-color: transparent;
+  color: var(--light);
+}
+
+.form__input::placeholder, .form__textarea::placeholder {
+  font-style: italic;
+  color: var(--neutral);
+}
+
+.form__input_text-lg {
+  font-size: 1.5rem;
+}
+
+.form__input_w-25 {
+  width: 25%;
+}
+
+.form__input_w-80 {
+  width: 80%;
+}
+
+.form__input_border-bottom {
+  border-bottom: 1px solid  var(--dark);
+}
+
+.form__input_border-bottom:focus {
+  border-bottom: 1px solid  cyan;
+}
+
+.text-container {
+  height: 64vh;
+}
+
+@media screen and (min-height: 485px) {
+  .text-container {
+    height: 72vh;
+  }
+}
+
+@media screen and (min-height: 680px) {
+  .text-container {
+    height: 78vh;
+  }
+}
+
+.form__textarea {
+  width: 100%;
+  height: 100%;
+  margin-bottom: 1rem;
+  overflow-y: scroll;
+  border: none;
+  outline: none;
+  background-color: transparent;
+  color: var(--light);
+  resize: none;
+  scrollbar-width: none; /* For Firefox */
+  -ms-overflow-style: none; /* For Internet Explorer */
+}
+
+.element::-webkit-scrollbar {
+  /* For Webkit browsers (Chrome, Edge, Safari) */
+  display: none;
+}
 
 .hint {
   position: relative;
@@ -274,16 +383,15 @@ function closeForm() {
 }
 
 .hint__text {
-  width: 300px;
-  border: 1px solid var(--neutral);
+  width: 270px;
   padding: 4px;
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
   position: absolute;
-  top: 28px;
-  right: -8px;
-  background-color: var(--dark);
+  top: 24px;
+  left: -276px;
+  background-color: var(--darkest);
 }
 
 .keyword {
@@ -291,7 +399,7 @@ function closeForm() {
   font-size: .8rem;
   font-size: .6rem;
   color: var(--light);
-  background-color: var(--neutral);
+  background-color: var(--dark);
 }
 
 .note-reference {
@@ -314,6 +422,14 @@ function closeForm() {
   border: 1px solid var(--neutral);
   border-radius: 2px;
   color: var(--light);
+}
+
+.detail-buttons {
+  margin: 12px 0 6px;
+  align-self: start;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
 }
 
 </style>

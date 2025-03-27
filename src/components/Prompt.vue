@@ -20,7 +20,7 @@ function onConfirm() {
   emit('confirm')
 }
 
-function onDismiss() {
+function onCancel() {
   emit('dismiss')
 }
 
@@ -34,8 +34,8 @@ function onDismiss() {
       <button
       type="button"
       class="button"
-      @click="onDismiss"
-      >Dismiss</button>
+      @click="onCancel"
+      >Cancel</button>
       <button
       type="button"
       class="button button_alert"
