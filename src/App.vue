@@ -9,7 +9,6 @@ import SettingsMenu from './components/SettingsMenu.vue'
 import PasswordForm from './components/PasswordForm.vue'
 import DeleteAccount from './components/DeleteAccount.vue'
 import ActionButtons from './components/ActionButtons.vue'
-import Prompt from './components/Prompt.vue'
 import NoteList from './components/NoteList.vue'
 
 const { isAuthenticated } = useAuth0()
@@ -41,17 +40,8 @@ function setNotes({ data }: { data: Note[] }) {
   notes.value = data
 }
 
-async function destroyNote() {
+function removeSelectedNote() {
   setNotes({ data: notes.value.filter(n => n.id !== selectedNote.value!.id as string )})
-  showingNoteForm.value = false
-  promptData.value = {
-    active: true,
-    title: 'Done',
-    message: 'Record deleted successfully.',
-    confirming: false,
-    onConfirm: () => {}
-  }
-  setTimeout(() => hideNoteForm(), 1250)
 }
 
 function showNoteForm(note?: Note) {
@@ -150,31 +140,17 @@ function showPasswordForm() {
       @show-delete-account-form="showDeleteAccountForm"
       @show-password-form="showPasswordForm" />
     </Transition>
-    
+
     <Transition>
       <dialog class="dialog" :open="showingNoteForm" v-if="showingNoteForm">
         <NoteForm
+        :selected-note="selectedNote"
         @close-form="hideNoteForm"
-        @destroy="destroyNote"
-        :selected-note="selectedNote" />
+        @remove-selected-note="removeSelectedNote" />
       </dialog>
     </Transition>
 
   </main>
-
-  <Transition>
-    <dialog
-    @click.self="promptData.active = false"
-    class="dialog"
-    :open="promptData.active" v-if="promptData.active">
-      <Prompt
-      :title="promptData.title"
-      :message="promptData.message"
-      :confirming="promptData.confirming"
-      @dismiss="promptData.active = false"
-      @confirm="promptData.onConfirm" />
-    </dialog>
-  </Transition>
 
 </template>
 
@@ -231,7 +207,7 @@ function showPasswordForm() {
   cursor: default;
 }
 
-.button_hightlight {
+.button_highlight {
   box-shadow: 0 -1px 4px cyan;
 }
 
@@ -423,6 +399,10 @@ function showPasswordForm() {
   width: 100%;
   height: 38px;
   background-color: var(--darkest);
+}
+
+.actions-panel_blur {
+  filter: blur(4px)
 }
 
 .actions-panel__layer-1 {

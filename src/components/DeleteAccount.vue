@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue"
+import { ref, computed, onMounted, nextTick } from "vue"
 import { useAuth0 } from "@auth0/auth0-vue"
 import { Destroy } from "../api/account"
 import Prompt from "./Prompt.vue"
@@ -34,12 +34,14 @@ async function deleteAccount() {
       title: 'Done',
       message: 'Account deleted.'
     }
+    logout()
   } catch (__) {
     promptData.value = {
       active: true,
       title: 'An error occurred',
       message: 'Please try again later.'
     }
+    nextTick().then(focusOnField)
   } finally {
     loading.value = false
   }
@@ -49,7 +51,7 @@ async function deleteAccount() {
 
 <template>
   <form class="form form_sm" :class="{ 'form_blur': promptData.active }" @submit.prevent="deleteAccount">
-    <p>Please type <kbd class="confirmation-text">delete my account</kbd> and confirm. This action is irreversible.</p>
+    <p>Please type <kbd class="confirmation-text">delete my account</kbd> and confirm. <br>This action is irreversible.</p>
     <label class="form__label" for="text">Confirmation field</label>
     <input
     id="text"
@@ -58,30 +60,30 @@ async function deleteAccount() {
     v-model="input"
     placeholder="delete my account"
     :disabled="loading">
-    <div v-if="!promptData.active" class="actions-panel">
-      <div class="actions-panel__layer-1">
-        <div class="tabs">
-          <button
-          class="button button_rounded button_icon button_bg-back"
-          type="button"
-          @click="emit('close-form')"
-          >Back</button>
-          <button
-          class="button button_rounded button_icon button_bg-check"
-          :class="{ 'button_pulse': loading }"
-          type="submit"
-          :disabled="invalidForm"
-          >Confirm</button>
-        </div>
+  </form>
+  <div class="actions-panel" :class="{ 'actions-panel_blur': promptData.active }">
+    <div class="actions-panel__layer-1">
+      <div class="tabs">
+        <button
+        class="button button_rounded button_icon button_bg-back"
+        type="button"
+        @click="emit('close-form')"
+        >Back</button>
+        <button
+        type="submit"
+        class="button button_rounded button_icon button_bg-check"
+        :class="{ 'button_pulse': loading, 'button_highlight': !invalidForm }"
+        :disabled="loading || invalidForm"
+        >Confirm</button>
       </div>
     </div>
-  </form>
+  </div>
   <Transition>
     <dialog class="dialog" :open="promptData.active" v-if="promptData.active">
       <Prompt
       :title="promptData.title"
       :message="promptData.message"
-      @dismiss="logout"
+      @dismiss="promptData.active = false"
       :confirming="false" />
     </dialog>
   </Transition>

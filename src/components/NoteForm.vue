@@ -9,7 +9,7 @@ onMounted(() => {
   else unlockForm()
 })
 
-const emit = defineEmits(['close-form', 'destroy'])
+const emit = defineEmits(['close-form', 'remove-selected-note'])
 const props = defineProps(['selectedNote'])
 const { getAccessTokenSilently } = useAuth0()
 
@@ -83,15 +83,26 @@ async function handleSubmit() {
 }
 
 async function destroy() {
-  const token = await getAccessTokenSilently()
-  note.value.destroy(token)
-    .then(() => emit('destroy'))
-    .catch(() => {showAlert({
+  try {
+    const token = await getAccessTokenSilently()
+    await note.value.destroy(token)
+    emit('remove-selected-note')
+    showAlert({
+      title: 'Done',
+      message: 'Record deleted successfully.',
+      confirming: false,
+      onConfirm: () => {}
+    })
+    setTimeout(() => emit('close-form'), 1250)
+  } catch (__) {
+    alerting.value = false
+    nextTick().then(() => showAlert({
       title: 'Attention',
       message: 'An error occurred. Please try again later.',
       confirming: false,
       onConfirm: () => {}
-    })})
+    }))
+  }
 }
 
 function unlockForm() {
@@ -193,7 +204,7 @@ function closeForm() {
   </form>
 
   <Transition>
-    <div class="actions-panel" v-if="!alerting">
+    <div class="actions-panel" :class="{ 'actions-panel_blur': alerting }">
       <div class="actions-panel__layer-1">
         <div class="tabs">
           <button
@@ -206,7 +217,7 @@ function closeForm() {
           class="button button_rounded button_icon button_bg-check"
           type="button"
           :disabled="loading || invalidForm || (updating && unmodified)"
-          :class="{ 'button_pulse': loading, 'button_hightlight': !invalidForm && !unmodified }"
+          :class="{ 'button_pulse': loading, 'button_highlight': !invalidForm && !unmodified }"
           @click="handleSubmit"
           >{{ loading ? 'Loading' : 'Save' }}</button>
           <button

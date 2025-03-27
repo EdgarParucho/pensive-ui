@@ -40,7 +40,8 @@ function onDismiss() {
       type="button"
       class="button button_alert"
       :class="{ 'button_pulse': loading }"
-      @click="onConfirm">Confirm</button>
+      :disabled="loading"
+      @click="onConfirm">{{ loading ? 'Loading' : 'Confirm' }}</button>
     </div>
   </div>
 </template>

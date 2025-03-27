@@ -70,7 +70,7 @@ async function search() {
     @keypress.enter="search">
   </form>
   <Transition>
-    <div class="actions-panel" v-if="!alerting">
+    <div class="actions-panel" :class="{ 'actions-panel_blur': alerting }">
       <div class="actions-panel__layer-1">
         <div class="tabs">
           <button
@@ -82,7 +82,7 @@ async function search() {
           <button
           type="submit"
           class="button button_rounded button_icon button_bg-check"
-          :class="{ 'button_pulse': loading, 'button_hightlight': !invalidQuery }"
+          :class="{ 'button_pulse': loading, 'button_highlight': !invalidQuery }"
           :disabled="loading || invalidQuery"
           >Search</button>
         </div>

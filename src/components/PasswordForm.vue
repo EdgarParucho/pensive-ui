@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue"
+import { ref, computed, onMounted, nextTick } from "vue"
 import { useAuth0 } from "@auth0/auth0-vue"
 import { Update } from "../api/account"
 import Prompt from "./Prompt.vue"
@@ -16,6 +16,7 @@ const promptData = ref({
   title: '',
   message: '',
 })
+const loading = ref(false)
 
 const passwordRequirements = [
   { text: 'Number', test: (value: string) => /\d/.test(value) },
@@ -35,6 +36,7 @@ function focusOnField() {
 }
 
 async function updatePassword() {
+  loading.value = true
   try {
     const token = await getAccessTokenSilently()
     await Update({ password: password.value, token })
@@ -43,12 +45,16 @@ async function updatePassword() {
       title: 'Done!',
       message: 'Password updated.'
     }
+    setTimeout(() => emit('close-form'), 1250)
   } catch (__) {
     promptData.value = {
       active: true,
       title: 'An error occurred',
       message: 'Please try again later.'
     }
+    nextTick().then(focusOnField)
+  } finally {
+    loading.value = false
   }
 }
 
@@ -57,25 +63,24 @@ async function updatePassword() {
 <template>
   <form class="form" :class="{ 'form_blur': promptData.active }" @submit.prevent="updatePassword">
     <label class="form__label" for="password">Password</label>
-    <input id="password" type="password" class="form__input form__input_border-bottom" v-model="password" placeholder="Password" maxlength="8">
+    <input
+    id="password"
+    type="password"
+    class="form__input form__input_border-bottom"
+    placeholder="Password"
+    maxlength="8"
+    :disabled="loading"
+    v-model="password">
     <label class="form__label" for="confirm-password">Confirm password</label>
-    <input id="confirm-password" type="password" class="form__input form__input_border-bottom" v-model="passwordConfirm" placeholder="Confirm password" maxlength="8">
-    <div v-if="!promptData.active" class="actions-panel">
-      <div class="actions-panel__layer-1">
-        <div class="tabs">
-          <button
-          class="button button_rounded button_icon button_bg-back"
-          type="button"
-          @click="emit('close-form')"
-          >Back</button>
-          <button
-          class="button button_rounded button_icon button_bg-check"
-          type="submit"
-          :disabled="invalidForm"
-          >Confirm</button>
-        </div>
-      </div>
-    </div>
+    <input
+    id="confirm-password"
+    placeholder="Confirm password"
+    maxlength="8"
+    type="password"
+    class="form__input form__input_border-bottom"
+    :disabled="loading"
+    v-model="passwordConfirm"
+    @keyup.enter="updatePassword">
     <div class="requirements">
       <h4 class="hint-title">
         Password requirements
@@ -95,12 +100,29 @@ async function updatePassword() {
       </ul>
     </div>
   </form>
+  <div class="actions-panel" :class="{ 'actions-panel_blur': promptData.active }">
+    <div class="actions-panel__layer-1">
+      <div class="tabs">
+        <button
+        class="button button_rounded button_icon button_bg-back"
+        type="button"
+        @click="emit('close-form')"
+        >Back</button>
+        <button
+        class="button button_rounded button_icon button_bg-check"
+        :class="{ 'button_highlight': !invalidForm, 'button_pulse': loading }"
+        @click="updatePassword"
+        :disabled="invalidForm || loading"
+        >Confirm</button>
+      </div>
+    </div>
+  </div>
   <Transition>
     <dialog class="dialog" :open="promptData.active" v-if="promptData.active">
       <Prompt
       :title="promptData.title"
       :message="promptData.message"
-      @dismiss="emit('close-form')"
+      @dismiss="promptData.active = false"
       :confirming="false" />
     </dialog>
   </Transition>
