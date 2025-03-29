@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useAuth0 } from '@auth0/auth0-vue'
+// import { useAuth0 } from '@auth0/auth0-vue'
 import Note from './models/Note.ts'
 import NoteForm from './components/NoteForm.vue'
 import SearchForm from './components/SearchForm.vue'
@@ -11,7 +11,8 @@ import DeleteAccount from './components/DeleteAccount.vue'
 import ActionButtons from './components/ActionButtons.vue'
 import NoteList from './components/NoteList.vue'
 
-const { isAuthenticated } = useAuth0()
+const isAuthenticated = true
+// const { isAuthenticated } = useAuth0()
 
 const notes = ref<Note[]>([])
 const showingNoteForm = ref(false)

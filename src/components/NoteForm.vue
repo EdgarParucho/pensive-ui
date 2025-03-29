@@ -4,6 +4,7 @@ import { useAuth0 } from '@auth0/auth0-vue'
 import Note from '../models/Note.ts'
 import Prompt from './Prompt.vue'
 import KeywordsForm from './KeywordsForm.vue'
+import ReferenceForm from './ReferenceForm.vue'
 
 onMounted(() => {
   if (props.selectedNote != null) startFromPreset()
@@ -48,6 +49,11 @@ function focusOnTitle() {
 function setKeywords(keywords: string) {
   note.value.keywords = keywords || null
   showingKeywordsForm.value = false
+}
+
+function setReference(reference: string) {
+  note.value.reference = reference || null
+  showingReferenceForm.value = false
 }
 
 function showAlert(alertInfo: { title: string, message: string, confirming: boolean, onConfirm: () => void }) {
@@ -130,47 +136,29 @@ function closeForm() {
   @submit.prevent="handleSubmit">
     <fieldset class="form__fieldset" ref="fieldset">
 
-      <div class="form__area">
-        <input
-        id="title"
-        class="form__input form__input_text-lg"
-        type="text"
-        placeholder="New Record"
+      <input
+      id="title"
+      class="form__input form__input_text-lg"
+      type="text"
+      placeholder="New Record"
+      required
+      v-model.trim="note.title"
+      autocomplete="off"
+      ref="title"
+      :disabled="loading || formLocked">
+
+      <p v-show="formLocked" class="note-type">{{ note.type }}</p>
+
+      <div class="text-container">
+        <textarea
+        id="body"
+        class="form__textarea"
+        placeholder="Type the content of your record here."
         required
-        v-model.trim="note.title"
         autocomplete="off"
-        ref="title"
-        :disabled="loading || formLocked">
-        
-        <p v-show="formLocked" class="note-type">{{ note.type }}</p>
-        
-        <div class="text-container">
-          <textarea
-          id="body"
-          class="form__textarea"
-          placeholder="Type the content of your record here."
-          required
-          autocomplete="off"
-          v-model.trim="note.body"
-          :disabled="loading || formLocked"></textarea>
-        </div>
+        v-model.trim="note.body"
+        :disabled="loading || formLocked"></textarea>
       </div>
-
-      <!--
-      <div class="form__area form__area_sm">
-
-        <div v-show="!formLocked || note.reference" class="note-reference" :class="{ 'note-reference_absolute': formLocked}">
-          <label v-show="!formLocked" class="form__label" for="reference">Reference</label>
-          <input
-          id="reference"
-          class="form__input form__input_border-bottom"
-          type="text"
-          placeholder="(Optional)"
-          v-model.trim="note.reference"
-          autocomplete="off"
-          :disabled="loading || formLocked">
-        </div>
-      </div> -->
 
     </fieldset>
     <div class="detail-buttons">
@@ -182,6 +170,7 @@ function closeForm() {
       <button
       class="button button_dark button_rounded button_icon button_bg-link"
       type="button"
+      @click="showingReferenceForm = true"
       >Add reference</button>
     </div>
     
@@ -241,22 +230,39 @@ function closeForm() {
       <KeywordsForm :form-locked="formLocked" :keywords="note.keywords" @set-keywords="setKeywords" />
     </dialog>
   </Transition>
+  <Transition>
+    <dialog class="dialog" :open="showingReferenceForm" v-if="showingReferenceForm">
+      <ReferenceForm :form-locked="formLocked" :reference="note.reference" @set-reference="setReference" />
+    </dialog>
+  </Transition>
 
 </template>
 
 <style scoped>
 
 .form {
+  height: 90%;
   min-height: 316px;
-  width: 98%;
+  width: 100%;
   max-width: 540px;
   padding: 12px;
-  position: relative;
+  align-self: start;
+  justify-self: center;
   box-shadow: -1px -1px 4px 0 var(--neutral);
   background-color: var(--dark);
   transition: filter .5s;
-  align-self: start;
-  justify-self: center;
+}
+
+@media screen and (min-height: 540px) {
+  .form {
+    margin-top: 8px;
+  }
+}
+
+@media screen and (min-height: 680px) {
+  .form {
+    margin-top: 16px;
+  }
 }
 
 .form_blur {
@@ -264,7 +270,7 @@ function closeForm() {
 }
 
 .form__fieldset {
-  height: 100%;
+  height: 90%;
   border: none;
   display: flex;
   justify-content: space-between;

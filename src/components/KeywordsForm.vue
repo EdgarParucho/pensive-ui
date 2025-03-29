@@ -46,6 +46,7 @@ function undo() {
       <button
       type="submit"
       class="button button_rounded button_icon button_bg-add"
+      :disabled="keyword.length < 3"
       >Add</button>
     </fieldset>
     <ul class="keyword-container">
@@ -65,7 +66,7 @@ function undo() {
     </ul>
     <div class="actions">
       <button
-      v-if="props.keywords && !props.formLocked"
+      v-if="(props.keywords || keywords) && !props.formLocked"
       type="button"
       class="button button_rounded button_icon button_bg-clear"
       title="Clear keywords"
@@ -91,15 +92,9 @@ function undo() {
 <style scoped>
 
 .form {
-  height: 140px;
-  width: 90%;
-  max-width: 540px;
-  padding: 12px;
+  max-height: 140px;
   position: absolute;
   top: calc(50% - 200px);
-  box-shadow: -1px -1px 4px 0 var(--neutral);
-  background-color: var(--dark);
-  transition: filter .5s;
   display: grid;
   place-items: center;
 }
@@ -122,7 +117,6 @@ function undo() {
   outline: none;
   background-color: transparent;
   color: var(--light);
-  border-bottom: 1px solid  var(--dark);
 }
 
 .form__input::placeholder, .form__textarea::placeholder {
