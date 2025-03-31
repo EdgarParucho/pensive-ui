@@ -9,7 +9,9 @@ onMounted(() => {
   document.getElementById('reference-type')?.focus()
 })
 
+
 const typeOfReference = ref('')
+const typesOfReferences = ['book', 'website', 'media', 'online-lesson', 'custom']
 const authorFirstName = ref('')
 const authorLastName = ref('')
 const title = ref('')
@@ -24,52 +26,105 @@ const reference = ref('')
 const authors = ref<{ firstName: string; lastName: string }[]>([])
 
 const referencePreview = computed(() => {
-  if (!typeOfReference.value) return ''
   if (typeOfReference.value === 'custom') return reference.value
-  let refString = ''
+  const author = getAuthorString()
+  switch (typeOfReference.value) {
+    case 'book':
+      return [
+        author,
+        title.value,
+        publisher.value,
+        String(year.value)
+      ].map(cleanString).join(' ')
+    case 'website':
+      return [
+        author,
+        title.value,
+        website.value,
+        String(year.value),
+        url.value
+      ].map(cleanString).join(' ')
+    case 'media':
+      return [
+        author,
+        title.value,
+        platform.value,
+        String(year.value),
+        url.value
+      ].map(cleanString).join(' ')
+    case 'online-lesson':
+      return [
+        author,
+        title.value,
+        typeOfClass.value,
+        institution.value,
+        String(year.value),
+        url.value
+      ].map(cleanString).join(' ')
+    default:
+      return ''
+  }
+})
 
+function formattedType(type: string) {
+  return type[0].toUpperCase() + type.slice(1).replace('-', ' ')
+}
+
+function nameFormatted(name: string) {
+  if (name.includes(' ')) return name.split(' ').map(n => n[0]).join('.') + '.'
+  else if (name.includes('.')) return name.split('.').map(n => n[0]).join('.')
+  else return name[0] + '.'
+}
+
+function cleanString(str: string) {
+  if (!str) return ''
+  str = str.replace(/\s+/g, ' ')
+  str = (str.endsWith('.')) ? str : str + '.'
+  return str
+}
+
+function getAuthorString() {
+  let authorString = ''
   if (authors.value.length == 0) {
     if (authorLastName.value) {
-      refString += authorLastName.value
-      refString += (authorFirstName.value) ? `, ${nameFormatted(authorFirstName.value)}` : '.'
+      authorString += authorLastName.value
+      authorString += (authorFirstName.value) ? `, ${nameFormatted(authorFirstName.value)}` : '.'
     } else if (authorFirstName.value) {
-      refString += `${nameFormatted(authorFirstName.value)}`
+      authorString += `${nameFormatted(authorFirstName.value)}`
     } else {
       if (authorLastName.value || authorFirstName.value) {
-        if (authorLastName.value) refString += `${authorLastName.value}`
-        refString += (authorFirstName.value) ? `, ${nameFormatted(authorFirstName.value)}` : '.'
+        if (authorLastName.value) authorString += `${authorLastName.value}`
+        authorString += (authorFirstName.value) ? `, ${nameFormatted(authorFirstName.value)}` : '.'
       } else {
-        refString += 'Unknown author.'
+        authorString += 'Unknown author.'
       }
     }
   } else {
     if (authors.value[0].lastName) {
-      refString += authors.value[0].lastName
-      refString += (authors.value[0].firstName) ? `, ${nameFormatted(authors.value[0].firstName)}` : '.'
+      authorString += authors.value[0].lastName
+      authorString += (authors.value[0].firstName) ? `, ${authors.value[0].firstName}` : '.'
     } else {
-      refString += `${nameFormatted(authors.value[0].firstName)}`
+      authorString += `${authors.value[0].firstName}`
     }
-    if (authors.value.length > 2) {
-      refString += ', et al.'
-    } else {
-      if (authors.value[1].lastName) {
-        refString += `, and ${authors.value[1].lastName}`
-        refString += (authors.value[1].firstName) ? `, ${nameFormatted(authors.value[1].firstName)}` : '.'
+    if (authors.value.length > 1) {
+      if (authors.value.length > 2) {
+        authorString += ', et al.'
       } else {
-        refString += `${nameFormatted(authors.value[1].firstName)}`
+        if (authors.value[1].lastName) {
+          authorString += `, and ${authors.value[1].lastName}`
+          authorString += (authors.value[1].firstName) ? `, ${nameFormatted(authors.value[1].firstName)}` : '.'
+        } else {
+          authorString += `${nameFormatted(authors.value[1].firstName)}`
+        }
       }
     }
   }
-  return refString
-})
-
-function nameFormatted(name: string) {
-  return name.split(' ').map(n => n[0]).join('.') + '.'
+  return authorString
 }
 
 function addAuthor() {
   authors.value.push({
-    firstName: authorFirstName.value,
+    firstName: nameFormatted(authorFirstName.value),
     lastName: authorLastName.value,
   })
   authorFirstName.value = ''
@@ -99,12 +154,12 @@ function undo() {
         Reference type
         <select id="reference-type" class="form__select" v-model="typeOfReference">
           <option class="form__option" value="">No reference</option>
-          <option class="form__option" value="book">Book</option>
-          <option class="form__option" value="web-article">Web Article</option>
-          <option class="form__option" value="website">Website</option>
-          <option class="form__option" value="media">Media</option>
-          <option class="form__option" value="online-lesson">Online lesson</option>
-          <option class="form__option" value="custom">Custom</option>
+          <option
+          v-for="type in typesOfReferences"
+          :key="type"
+          :value="type"
+          class="form__option"
+          >{{ formattedType(type) }}</option>
         </select>
       </label>
       <Transition>
@@ -127,7 +182,7 @@ function undo() {
               id="first-name"
               type="text"
               class="form__input"
-              v-model="authorFirstName"
+              v-model.trim="authorFirstName"
               placeholder="First name">
             </label>
             <label for="last-name" class="form__label">
@@ -136,7 +191,7 @@ function undo() {
               id="last-name"
               type="text"
               class="form__input"
-              v-model="authorLastName"
+              v-model.trim="authorLastName"
               placeholder="Last name">
             </label>
             <button
@@ -153,10 +208,10 @@ function undo() {
             >
               <span>{{ author.lastName }}, {{ author.firstName }}</span>
               <button
-              @click="removeAuthor(author.firstName + ' ' + author.lastName)"
+              v-if="!props.formLocked"
               type="button"
               class="button button_rounded button_icon button_bg-x button_sm"
-              v-if="!props.formLocked"
+              @click="removeAuthor(author.firstName + ' ' + author.lastName)"
               >Remove author</button>
             </li>
           </ul>
@@ -170,7 +225,7 @@ function undo() {
             id="title"
             type="text"
             class="form__input"
-            v-model="title"
+            v-model.trim="title"
             placeholder="Title">
           </label>
           <label v-if="typeOfReference === 'book'" for="publisher" class="form__label">
@@ -179,7 +234,7 @@ function undo() {
             id="publisher"
             type="text"
             class="form__input"
-            v-model="publisher"
+            v-model.trim="publisher"
             placeholder="Publisher">
           </label>
           <label v-if="typeOfReference === 'media'" for="platform" class="form__label">
@@ -188,16 +243,16 @@ function undo() {
             id="platform"
             type="text"
             class="form__input"
-            v-model="platform"
+            v-model.trim="platform"
             placeholder="Platform">
           </label>
-          <label v-if="typeOfReference.includes('web')" for="website" class="form__label">
+          <label v-if="typeOfReference === 'website'" for="website" class="form__label">
             Title of the page
             <input
             id="website"
             type="text"
             class="form__input"
-            v-model="website"
+            v-model.trim="website"
             placeholder="Title of the page">
           </label>
         </div>
@@ -221,7 +276,7 @@ function undo() {
             id="url"
             type="url"
             class="form__input"
-            v-model="url"
+            v-model.trim="url"
             placeholder="URL">
           </label>
         </div>
@@ -234,7 +289,7 @@ function undo() {
             id="institution"
             type="text"
             class="form__input"
-            v-model="institution"
+            v-model.trim="institution"
             placeholder="Institution">
           </label>
           <label for="type-of-class" class="form__label">
@@ -243,12 +298,12 @@ function undo() {
             id="type-of-class"
             type="text"
             class="form__input"
-            v-model="typeOfClass"
+            v-model.trim="typeOfClass"
             placeholder="Type of class">
           </label>
         </div>
       </Transition>
-      {{ referencePreview }}
+      <small>{{ referencePreview }}</small>
     </fieldset>
     <div class="actions">
       <button
@@ -279,7 +334,7 @@ function undo() {
 
 .reference_form {
   height: 100%;
-  max-height: 400px;
+  max-height: 440px;
   width: 100%;
   max-width: 540px;
   padding: 12px;
