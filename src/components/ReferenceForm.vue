@@ -12,7 +12,7 @@ onMounted(() => {
 
 
 const typeOfReference = ref('')
-const typesOfReferences = ['book', 'website', 'media', 'online-lesson', 'custom']
+const typesOfReference = ['book', 'website', 'media', 'online-lesson', 'custom']
 const authorFirstName = ref('')
 const authorLastName = ref('')
 const title = ref('')
@@ -29,20 +29,9 @@ const referenceStringified = ref('')
 
 const referencePreview = computed(() => {
   if (typeOfReference.value === 'custom') return customReference.value
-  const author = getAuthorString()
+  const author = getAuthors()
   switch (typeOfReference.value) {
     case 'book':
-      referenceStringified.value = JSON.stringify({
-        type: 'book',
-        authors: authors.value.length ? authors.value : [{
-          firstName: authorFirstName.value,
-          lastName: authorLastName.value,
-          fullName: [authorFirstName.value, authorLastName.value].join(' ').trim() || 'Unknown author'
-        }],
-        title: title.value,
-        publisher: publisher.value,
-        year: year.value
-      })
       return [
         author,
         title.value,
@@ -50,18 +39,6 @@ const referencePreview = computed(() => {
         String(year.value)
       ].map(cleanString).join(' ')
     case 'website':
-      referenceStringified.value = JSON.stringify({
-        type: 'website',
-        authors: authors.value.length ? authors.value : [{
-          firstName: authorFirstName.value,
-          lastName: authorLastName.value,
-          fullName: [authorFirstName.value, authorLastName.value].join(' ').trim() || 'Unknown author'
-        }],
-        title: title.value,
-        website: website.value,
-        year: year.value,
-        url: url.value,
-      })
       return [
         author,
         title.value,
@@ -70,18 +47,6 @@ const referencePreview = computed(() => {
         url.value
       ].map(cleanString).join(' ')
     case 'media':
-      referenceStringified.value = JSON.stringify({
-        type: 'media',
-        authors: authors.value.length ? authors.value : [{
-          firstName: authorFirstName.value,
-          lastName: authorLastName.value,
-          fullName: [authorFirstName.value, authorLastName.value].join(' ').trim() || 'Unknown author'
-        }],
-        title: title.value,
-        platform: platform.value,
-        year: year.value,
-        url: url.value
-      })
       return [
         author,
         title.value,
@@ -90,19 +55,6 @@ const referencePreview = computed(() => {
         url.value
       ].map(cleanString).join(' ')
     case 'online-lesson':
-      referenceStringified.value = JSON.stringify({
-        type: 'online-lesson',
-        authors: authors.value.length ? authors.value : [{
-          firstName: authorFirstName.value,
-          lastName: authorLastName.value,
-          fullName: [authorFirstName.value, authorLastName.value].join(' ').trim() || 'Unknown author'
-        }],
-        title: title.value,
-        typeOfClass: typeOfClass.value,
-        institution: institution.value,
-        year: year.value,
-        url: url.value
-      })
       return [
         author,
         title.value,
@@ -154,43 +106,18 @@ function parseReference(reference: string) {
   typeOfReference.value = parsedReference.type || ''
 }
 
-function getAuthorString() {
-  let authorString = ''
-  if (authors.value.length == 0) {
-    if (authorLastName.value) {
-      authorString += authorLastName.value
-      authorString += (authorFirstName.value) ? `, ${nameFormatted(authorFirstName.value)}` : '.'
-    } else if (authorFirstName.value) {
-      authorString += `${nameFormatted(authorFirstName.value)}`
-    } else {
-      if (authorLastName.value || authorFirstName.value) {
-        if (authorLastName.value) authorString += `${authorLastName.value}`
-        authorString += (authorFirstName.value) ? `, ${nameFormatted(authorFirstName.value)}` : '.'
-      } else {
-        authorString += 'Unknown author.'
-      }
-    }
-  } else {
-    if (authors.value[0].lastName) {
-      authorString += authors.value[0].lastName
-      authorString += (authors.value[0].firstName) ? `, ${authors.value[0].firstName}` : '.'
-    } else {
-      authorString += `${authors.value[0].firstName}`
-    }
-    if (authors.value.length > 1) {
-      if (authors.value.length > 2) {
-        authorString += ', et al.'
-      } else {
-        if (authors.value[1].lastName) {
-          authorString += `, and ${authors.value[1].lastName}`
-          authorString += (authors.value[1].firstName) ? `, ${nameFormatted(authors.value[1].firstName)}` : '.'
-        } else {
-          authorString += `${nameFormatted(authors.value[1].firstName)}`
-        }
-      }
-    }
-  }
-  return authorString
+function getAuthor(author = { firstName: authorFirstName.value, lastName: authorLastName.value } ) {
+  const { firstName, lastName} = author
+  if (lastName) return lastName.concat(firstName ? `, ${nameFormatted(firstName)}` : '.')
+  else if (firstName) return firstName
+  else return 'Unknown author.'
+}
+
+function getAuthors() {
+  if (authors.value.length == 0) return getAuthor()
+  if (authors.value.length == 1) return getAuthor(authors.value[0])
+  if (authors.value.length == 2) return `${getAuthor(authors.value[0])}, and ${getAuthor(authors.value[1])}`
+  else return `${getAuthor(authors.value[0])}, et al.`
 }
 
 function addAuthor() {
@@ -203,26 +130,93 @@ function addAuthor() {
   authorLastName.value = ''
 }
 
-function removeAuthor(author: string) {
-  authors.value = authors.value.filter(
-    (a) => `${a.firstName} ${a.lastName}` !== author
-  )
+function removeAuthor(i: number) {
+  authors.value.splice(i, 1)
 }
 
 function clear() {
+  typeOfReference.value = ''
   authors.value =  []
+  authorFirstName.value = ''
+  authorLastName.value = ''
+  publisher.value = ''
+  platform.value = ''
+  website.value = ''
   title.value =  ''
   typeOfClass.value =  ''
   institution.value =  ''
   year.value =  new Date().getFullYear()
   url.value =  ''
+  customReference.value = ''
+  referenceStringified.value = ''
 }
 
 function undo() {
-  referenceStringified.value = props.reference || ''
+  referenceStringified.value = props.reference
 }
 
 function onSubmit() {
+  switch (typeOfReference.value) {
+    case 'book':
+      referenceStringified.value = JSON.stringify({
+        type: 'book',
+        authors: authors.value.length ? authors.value : [{
+          firstName: authorFirstName.value,
+          lastName: authorLastName.value,
+          fullName: [authorFirstName.value, authorLastName.value].join(' ').trim() || 'Unknown author'
+        }],
+        title: title.value,
+        publisher: publisher.value,
+        year: year.value
+      })
+      break
+    case 'website':
+      referenceStringified.value = JSON.stringify({
+        type: 'website',
+        authors: authors.value.length ? authors.value : [{
+          firstName: authorFirstName.value,
+          lastName: authorLastName.value,
+          fullName: [authorFirstName.value, authorLastName.value].join(' ').trim() || 'Unknown author'
+        }],
+        title: title.value,
+        website: website.value,
+        year: year.value,
+        url: url.value,
+      })
+      break
+    case 'media':
+      referenceStringified.value = JSON.stringify({
+        type: 'media',
+        authors: authors.value.length ? authors.value : [{
+          firstName: authorFirstName.value,
+          lastName: authorLastName.value,
+          fullName: [authorFirstName.value, authorLastName.value].join(' ').trim() || 'Unknown author'
+        }],
+        title: title.value,
+        platform: platform.value,
+        year: year.value,
+        url: url.value
+      })
+      break
+    case 'online-lesson':
+      referenceStringified.value = JSON.stringify({
+        type: 'online-lesson',
+        authors: authors.value.length ? authors.value : [{
+          firstName: authorFirstName.value,
+          lastName: authorLastName.value,
+          fullName: [authorFirstName.value, authorLastName.value].join(' ').trim() || 'Unknown author'
+        }],
+        title: title.value,
+        typeOfClass: typeOfClass.value,
+        institution: institution.value,
+        year: year.value,
+        url: url.value
+      })
+      break
+    default:
+      referenceStringified.value = JSON.stringify({ customReference: customReference.value })
+      break
+  }
   emit('setReference', referenceStringified.value)
 }
 
@@ -236,7 +230,7 @@ function onSubmit() {
         <select id="reference-type" class="form__select" v-model="typeOfReference">
           <option class="form__option" value="">No reference</option>
           <option
-          v-for="type in typesOfReferences"
+          v-for="type in typesOfReference"
           :key="type"
           :value="type"
           class="form__option"
@@ -282,13 +276,13 @@ function onSubmit() {
             @click="addAuthor">Add author</button>
           </div>
           <ul class="author-container">
-            <li v-for="author in authors" :key="author.firstName" class="author">
-              <span>{{ author.lastName }}, {{ author.firstName }}</span>
+            <li v-for="author, i in authors" :key="i" class="author">
+              <span>{{ author.fullName }}</span>
               <button
               v-if="!props.formLocked"
               type="button"
               class="button button_rounded button_icon button_bg-x button_sm"
-              @click="removeAuthor(author.firstName + ' ' + author.lastName)"
+              @click="removeAuthor(i)"
               >Remove author</button>
             </li>
           </ul>
@@ -358,7 +352,8 @@ function onSubmit() {
             type="url"
             class="form__input"
             v-model.trim="url"
-            placeholder="URL">
+            placeholder="URL"
+            required>
           </label>
         </div>
       </Transition>
