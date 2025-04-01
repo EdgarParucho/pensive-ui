@@ -5,7 +5,8 @@ const props = defineProps(['reference', 'formLocked'])
 const emit = defineEmits(['setReference'])
 
 onMounted(() => {
-  reference.value = props.reference || ''
+  referenceStringified.value = props.reference || ''
+  if (props.reference) parseReference(props.reference)
   document.getElementById('reference-type')?.focus()
 })
 
@@ -22,14 +23,26 @@ const publisher = ref('')
 const institution = ref('')
 const typeOfClass = ref('')
 const platform = ref('')
-const reference = ref('')
-const authors = ref<{ firstName: string; lastName: string }[]>([])
+const customReference = ref('')
+const authors = ref<{ firstName: string; lastName: string, fullName: string }[]>([])
+const referenceStringified = ref('')
 
 const referencePreview = computed(() => {
-  if (typeOfReference.value === 'custom') return reference.value
+  if (typeOfReference.value === 'custom') return customReference.value
   const author = getAuthorString()
   switch (typeOfReference.value) {
     case 'book':
+      referenceStringified.value = JSON.stringify({
+        type: 'book',
+        authors: authors.value.length ? authors.value : [{
+          firstName: authorFirstName.value,
+          lastName: authorLastName.value,
+          fullName: [authorFirstName.value, authorLastName.value].join(' ').trim() || 'Unknown author'
+        }],
+        title: title.value,
+        publisher: publisher.value,
+        year: year.value
+      })
       return [
         author,
         title.value,
@@ -37,6 +50,18 @@ const referencePreview = computed(() => {
         String(year.value)
       ].map(cleanString).join(' ')
     case 'website':
+      referenceStringified.value = JSON.stringify({
+        type: 'website',
+        authors: authors.value.length ? authors.value : [{
+          firstName: authorFirstName.value,
+          lastName: authorLastName.value,
+          fullName: [authorFirstName.value, authorLastName.value].join(' ').trim() || 'Unknown author'
+        }],
+        title: title.value,
+        website: website.value,
+        year: year.value,
+        url: url.value,
+      })
       return [
         author,
         title.value,
@@ -45,6 +70,18 @@ const referencePreview = computed(() => {
         url.value
       ].map(cleanString).join(' ')
     case 'media':
+      referenceStringified.value = JSON.stringify({
+        type: 'media',
+        authors: authors.value.length ? authors.value : [{
+          firstName: authorFirstName.value,
+          lastName: authorLastName.value,
+          fullName: [authorFirstName.value, authorLastName.value].join(' ').trim() || 'Unknown author'
+        }],
+        title: title.value,
+        platform: platform.value,
+        year: year.value,
+        url: url.value
+      })
       return [
         author,
         title.value,
@@ -53,6 +90,19 @@ const referencePreview = computed(() => {
         url.value
       ].map(cleanString).join(' ')
     case 'online-lesson':
+      referenceStringified.value = JSON.stringify({
+        type: 'online-lesson',
+        authors: authors.value.length ? authors.value : [{
+          firstName: authorFirstName.value,
+          lastName: authorLastName.value,
+          fullName: [authorFirstName.value, authorLastName.value].join(' ').trim() || 'Unknown author'
+        }],
+        title: title.value,
+        typeOfClass: typeOfClass.value,
+        institution: institution.value,
+        year: year.value,
+        url: url.value
+      })
       return [
         author,
         title.value,
@@ -81,6 +131,27 @@ function cleanString(str: string) {
   str = str.replace(/\s+/g, ' ')
   str = (str.endsWith('.')) ? str : str + '.'
   return str
+}
+
+function parseReference(reference: string) {
+  const parsedReference = JSON.parse(reference)
+  if (parsedReference.authors) {
+    authors.value = parsedReference.authors.map((author: { firstName: string; lastName: string, fullName: string }) => ({
+      firstName: author.firstName,
+      lastName: author.lastName,
+      fullName: author.fullName
+    }))
+    typeOfReference.value = parsedReference.typeOfReference || ''
+    title.value = parsedReference.title || ''
+    website.value = parsedReference.website || ''
+    year.value = parsedReference.year || new Date().getFullYear()
+    url.value = parsedReference.url || ''
+    publisher.value = parsedReference.publisher || ''
+    institution.value = parsedReference.institution || ''
+    typeOfClass.value = parsedReference.typeOfClass || ''
+    platform.value = parsedReference.platform || ''
+  }
+  typeOfReference.value = parsedReference.type || ''
 }
 
 function getAuthorString() {
@@ -126,6 +197,7 @@ function addAuthor() {
   authors.value.push({
     firstName: nameFormatted(authorFirstName.value),
     lastName: authorLastName.value,
+    fullName: [authorFirstName.value, authorLastName.value].join(' ').trim() || 'Unknown author'
   })
   authorFirstName.value = ''
   authorLastName.value = ''
@@ -138,17 +210,26 @@ function removeAuthor(author: string) {
 }
 
 function clear() {
-  reference.value = ''
+  authors.value =  []
+  title.value =  ''
+  typeOfClass.value =  ''
+  institution.value =  ''
+  year.value =  new Date().getFullYear()
+  url.value =  ''
 }
 
 function undo() {
-  reference.value = props.reference || ''
+  referenceStringified.value = props.reference || ''
+}
+
+function onSubmit() {
+  emit('setReference', referenceStringified.value)
 }
 
 </script>
 
 <template>
-  <form class="reference_form">
+  <form class="reference_form" @submit.prevent="onSubmit">
     <fieldset class="form__fieldset">
       <label for="reference-type" class="form__label form__label_w-sm">
         Reference type
@@ -169,7 +250,7 @@ function undo() {
           id="reference"
           type="text"
           class="form__input form__input_w-lg"
-          v-model="reference"
+          v-model="customReference"
           placeholder="Custom">
         </label>
       </Transition>
@@ -201,11 +282,7 @@ function undo() {
             @click="addAuthor">Add author</button>
           </div>
           <ul class="author-container">
-            <li
-            v-for="author in authors"
-            :key="author.firstName"
-            class="author"
-            >
+            <li v-for="author in authors" :key="author.firstName" class="author">
               <span>{{ author.lastName }}, {{ author.firstName }}</span>
               <button
               v-if="!props.formLocked"
@@ -226,7 +303,8 @@ function undo() {
             type="text"
             class="form__input"
             v-model.trim="title"
-            placeholder="Title">
+            placeholder="Title"
+            required>
           </label>
           <label v-if="typeOfReference === 'book'" for="publisher" class="form__label">
             Publisher
@@ -235,7 +313,8 @@ function undo() {
             type="text"
             class="form__input"
             v-model.trim="publisher"
-            placeholder="Publisher">
+            placeholder="Publisher"
+            required>
           </label>
           <label v-if="typeOfReference === 'media'" for="platform" class="form__label">
             Platform
@@ -244,7 +323,8 @@ function undo() {
             type="text"
             class="form__input"
             v-model.trim="platform"
-            placeholder="Platform">
+            placeholder="Platform"
+            required>
           </label>
           <label v-if="typeOfReference === 'website'" for="website" class="form__label">
             Title of the page
@@ -253,7 +333,8 @@ function undo() {
             type="text"
             class="form__input"
             v-model.trim="website"
-            placeholder="Title of the page">
+            placeholder="Title of the page"
+            required>
           </label>
         </div>
       </Transition>
@@ -290,7 +371,8 @@ function undo() {
             type="text"
             class="form__input"
             v-model.trim="institution"
-            placeholder="Institution">
+            placeholder="Institution"
+            required>
           </label>
           <label for="type-of-class" class="form__label">
             Type of class
@@ -299,7 +381,8 @@ function undo() {
             type="text"
             class="form__input"
             v-model.trim="typeOfClass"
-            placeholder="Type of class">
+            placeholder="Type of class"
+            required>
           </label>
         </div>
       </Transition>
@@ -307,7 +390,7 @@ function undo() {
     </fieldset>
     <div class="actions">
       <button
-      v-if="(props.reference || reference) && !props.formLocked"
+      v-if="(props.reference || referenceStringified) && !props.formLocked"
       type="button"
       class="button button_rounded button_icon button_bg-clear"
       title="Clear reference"
@@ -318,13 +401,12 @@ function undo() {
       type="button"
       class="button button_rounded button_icon button_bg-undo"
       title="Undo changes"
-      :disabled="reference === props.reference"
+      :disabled="referenceStringified === props.reference"
       @click="undo">
       Undo</button>
       <button
-      type="button"
-      class="button button_rounded button_icon button_bg-check"
-      @click="emit('setReference', reference)">
+      type="submit"
+      class="button button_rounded button_icon button_bg-check">
       Confirm</button>
     </div>
   </form>
