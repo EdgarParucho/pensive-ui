@@ -106,7 +106,7 @@ function setOriginalValues() {
     ...form.value,
     ...formValues
   }
-  authors.value = authorsValue
+  if (authorsValue) authors.value = authorsValue
 }
 
 function addAuthor() {
@@ -158,7 +158,11 @@ function fieldIsRequired(field: string) {
     <fieldset class="form__fieldset">
       <label for="reference-type" class="form__label form__label_w-sm">
         Reference type
-        <select id="reference-type" class="form__select" v-model="form.typeOfReference">
+        <select
+        id="reference-type"
+        class="form__select"
+        v-model="form.typeOfReference"
+        :disabled="formLocked">
           <option class="form__option" value="">No reference</option>
           <option
           v-for="type in Object.keys(specificFields)"
@@ -179,7 +183,8 @@ function fieldIsRequired(field: string) {
           type="text"
           class="form__input form__input_w-lg"
           v-model="form.custom"
-          placeholder="Custom">
+          placeholder="Custom"
+          :disabled="formLocked">
         </label>
       </Transition>
       <Transition>

@@ -31,10 +31,6 @@ function clear() {
   keywords.value = ''
 }
 
-function undo() {
-  keywords.value = props.keywords || ''
-}
-
 </script>
 
 <template>

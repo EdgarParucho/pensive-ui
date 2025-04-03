@@ -115,18 +115,6 @@ async function search() {
   transition: filter .5s;
 }
 
-@media screen and (min-height: 540px) {
-  .form {
-    margin-top: 8px;
-  }
-}
-
-@media screen and (min-height: 680px) {
-  .form {
-    margin-top: 16px;
-  }
-}
-
 .form_blur {
   filter: blur(4px);
 }

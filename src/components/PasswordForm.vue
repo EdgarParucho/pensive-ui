@@ -82,7 +82,7 @@ async function updatePassword() {
     v-model="passwordConfirm"
     @keyup.enter="updatePassword">
     <div class="requirements">
-      <h4 class="hint-title">
+      <h4>
         Password requirements
       </h4>
       <ul class="list">
@@ -130,17 +130,92 @@ async function updatePassword() {
 
 <style scoped>
 
-.requirements {
-  padding: 20px 0;
-  margin-top: 20px;
-  display: grid;
-  justify-content: center;
+.form {
+  height: 90%;
+  width: 100%;
+  max-width: 320px;
+  padding: 12px;
+  align-self: start;
+  justify-self: center;
+  box-shadow: -1px -1px 4px 0 var(--neutral);
+  background-color: var(--dark);
+  transition: filter .5s;
+}
+
+@media screen and (min-height: 540px) {
+  .form {
+    height: 460px;
+    margin-top: 8px;
+  }
+}
+
+@media screen and (min-height: 680px) {
+  .form {
+    margin-top: 16px;
+    align-self: center;
+  }
+}
+
+.form_blur {
+  filter: blur(4px);
+}
+
+.form__fieldset {
+  height: 90%;
+  border: none;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
   gap: 12px;
+}
+
+.form__label {
+  margin: 8px 0;
+  font-size: .7rem;
+  font-weight: bold;
+  display: block;
   color: var(--light);
 }
 
-.hint-title {
-  font-size: 1.1rem;
+.form__input {
+  width: 100%;
+  margin-bottom: 1rem;
+  border: none;
+  outline: none;
+  background-color: transparent;
+  color: var(--light);
+}
+
+.form__input::placeholder, .form__textarea::placeholder {
+  font-style: italic;
+  color: var(--neutral);
+}
+
+.form__input_text-lg {
+  font-size: 1.5rem;
+}
+
+.form__input_w-25 {
+  width: 25%;
+}
+
+.form__input_w-80 {
+  width: 80%;
+}
+
+.form__input_border-bottom {
+  border-bottom: 1px solid  var(--dark);
+}
+
+.form__input_border-bottom:focus {
+  border-bottom: 1px solid  cyan;
+}
+
+.requirements {
+  display: grid;
+  justify-content: center;
+  gap: 4px;
+  color: var(--light);
 }
 
 .list {
@@ -152,7 +227,8 @@ async function updatePassword() {
 .list__item {
   margin-top: 6px;
   list-style: '✘ ';
-  transition: color 0.2s
+  transition: color 0.2s;
+  font-size: .8rem;
 }
 
 .list__item_fulfilled {
