@@ -99,3 +99,87 @@ async function search() {
     </dialog>
   </Transition>
 </template>
+
+<style scoped>
+
+.form {
+  height: 90%;
+  max-height: 100px;
+  width: 100%;
+  max-width: 300px;
+  padding: 12px;
+  align-self: center;
+  justify-self: center;
+  box-shadow: -1px -1px 4px 0 var(--neutral);
+  background-color: var(--dark);
+  transition: filter .5s;
+}
+
+@media screen and (min-height: 540px) {
+  .form {
+    margin-top: 8px;
+  }
+}
+
+@media screen and (min-height: 680px) {
+  .form {
+    margin-top: 16px;
+  }
+}
+
+.form_blur {
+  filter: blur(4px);
+}
+
+.form__fieldset {
+  height: 90%;
+  border: none;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form__label {
+  margin: 8px 0;
+  font-size: .7rem;
+  font-weight: bold;
+  display: block;
+  color: var(--light);
+}
+
+.form__input {
+  width: 100%;
+  margin-bottom: 1rem;
+  border: none;
+  outline: none;
+  background-color: transparent;
+  color: var(--light);
+}
+
+.form__input::placeholder, .form__textarea::placeholder {
+  font-style: italic;
+  color: var(--neutral);
+}
+
+.form__input_text-lg {
+  font-size: 1.5rem;
+}
+
+.form__input_w-25 {
+  width: 25%;
+}
+
+.form__input_w-80 {
+  width: 80%;
+}
+
+.form__input_border-bottom {
+  border-bottom: 1px solid  var(--dark);
+}
+
+.form__input_border-bottom:focus {
+  border-bottom: 1px solid  cyan;
+}
+
+</style>

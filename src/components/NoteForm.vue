@@ -284,19 +284,6 @@ function closeForm() {
   gap: 12px;
 }
 
-.form__area {
-  width: 100%;
-}
-
-.divider {
-  border-color: var(--neutral);
-}
-
-.form__area_sm {
-  justify-self: flex-end;
-  width: 25%;
-}
-
 .form__label {
   margin: 8px 0;
   font-size: .7rem;
@@ -372,57 +359,6 @@ function closeForm() {
 .element::-webkit-scrollbar {
   /* For Webkit browsers (Chrome, Edge, Safari) */
   display: none;
-}
-
-.hint {
-  position: relative;
-  margin-left: 12px;
-  display: inline-block;
-}
-
-.hint__action {
-  margin-left: 12px;
-  cursor: default;
-  background-color: transparent;
-  display: inline-block;
-  color: transparent;
-  height: 16px;
-  width: 16px;
-  background-image: url('../assets/icons8-eye-24.png');
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-}
-
-.hint__text {
-  width: 270px;
-  padding: 4px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  position: absolute;
-  top: 24px;
-  left: -276px;
-  background-color: var(--darkest);
-}
-
-.keyword {
-  padding: 0 6px;
-  font-size: .8rem;
-  font-size: .6rem;
-  color: var(--light);
-  background-color: var(--dark);
-}
-
-.note-reference {
-  width: 100%;
-  font-size: .8rem;
-  color: var(--light);
-}
-
-.note-reference_absolute {
-  position: absolute;
-  bottom: 44px;
 }
 
 .detail-buttons {
