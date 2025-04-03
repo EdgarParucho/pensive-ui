@@ -147,8 +147,6 @@ function closeForm() {
       ref="title"
       :disabled="loading || formLocked">
 
-      <p v-show="formLocked" class="note-type">{{ note.type }}</p>
-
       <div class="text-container">
         <textarea
         id="body"
@@ -417,17 +415,6 @@ function closeForm() {
 .note-reference_absolute {
   position: absolute;
   bottom: 44px;
-}
-
-.note-type {
-  padding: 0 6px;
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  font-size: .8rem;
-  border: 1px solid var(--neutral);
-  border-radius: 2px;
-  color: var(--light);
 }
 
 .detail-buttons {
