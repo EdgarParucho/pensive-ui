@@ -26,7 +26,7 @@ const alertData = ref({ title: '', message: '', confirming: false, onConfirm: ()
 const showingKeywordsForm = ref(false)
 const showingReferenceForm = ref(false)
 
-const invalidForm = computed(() => ['title', 'body', 'type']
+const invalidForm = computed(() => ['title', 'body']
   .some((mandatoryField) => !note.value[mandatoryField as keyof Note]))
 
 const unmodified = computed(() => {

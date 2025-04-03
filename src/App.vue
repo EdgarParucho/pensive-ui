@@ -204,6 +204,7 @@ function showPasswordForm() {
 .button:disabled {
   box-shadow: none;
   filter: grayscale(1);
+  opacity: .5;
   cursor: default;
 }
 
