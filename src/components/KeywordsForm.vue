@@ -2,15 +2,19 @@
 import { ref, onMounted } from "vue"
 
 const props = defineProps(['keywords', 'formLocked'])
-const emit = defineEmits(['setKeywords'])
+const emit = defineEmits(['dismiss', 'setKeywords'])
 
 onMounted(() => {
-  keywords.value = props.keywords || ''
+  if (props.keywords) setOriginalValues()
   document.getElementById('keyword')?.focus()
 })
 
 const keyword = ref('')
 const keywords = ref('')
+
+function setOriginalValues() {
+  keywords.value = props.keywords
+}
 
 function addKeyword() {
   const value = keyword.value.trim().toLowerCase()
@@ -66,23 +70,29 @@ function undo() {
     </ul>
     <div class="actions">
       <button
-      v-if="(props.keywords || keywords) && !props.formLocked"
       type="button"
-      class="button button_rounded button_icon button_bg-clear"
-      title="Clear keywords"
+      class="button button_rounded button_icon button_bg-cancel"
+      title="Dismiss"
+      @click="emit('dismiss')">
+      Dismiss</button>
+      <button
+      type="button"
+      title="Restore to original"
+      class="button button_rounded button_icon button_bg-undo"
+      :disabled="(keywords === props.keywords) || !props.keywords || props.formLocked"
+      @click="setOriginalValues">
+      Restore</button>
+      <button
+      :disabled="props.formLocked || !keywords"
+      type="button"
+      class="button button_rounded button_icon button_bg-eraser"
+      title="Clear fields"
       @click="clear">
       Clear</button>
       <button
-      v-if="props.keywords && !props.formLocked"
-      type="button"
-      class="button button_rounded button_icon button_bg-undo"
-      title="Undo changes"
-      :disabled="keywords === props.keywords"
-      @click="undo">
-      Undo</button>
-      <button
       type="button"
       class="button button_rounded button_icon button_bg-check"
+      :disabled="formLocked || (!keywords && !props.keywords) || keywords === props.keywords"
       @click="emit('setKeywords', keywords)">
       Confirm</button>
     </div>

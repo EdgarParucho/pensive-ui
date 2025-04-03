@@ -161,12 +161,12 @@ function closeForm() {
     </fieldset>
     <div class="detail-buttons">
       <button
-      class="button button_dark button_rounded button_icon button_bg-tag"
+      class="button button_dark button_rounded button_icon button_bg-tags"
       type="button"
       @click="showingKeywordsForm = true"
       >Add keywords</button>
       <button
-      class="button button_dark button_rounded button_icon button_bg-link"
+      class="button button_dark button_rounded button_icon button_bg-author"
       type="button"
       @click="showingReferenceForm = true"
       >Add reference</button>
@@ -182,7 +182,7 @@ function closeForm() {
       <div class="actions-panel__layer-1">
         <div class="tabs">
           <button
-          class="button button_rounded button_icon button_bg-back"
+          class="button button_rounded button_icon button_bg-cancel"
           type="button"
           @click="closeForm"
           >Back</button>
@@ -225,12 +225,20 @@ function closeForm() {
 
   <Transition>
     <dialog class="dialog" :open="showingKeywordsForm" v-if="showingKeywordsForm">
-      <KeywordsForm :form-locked="formLocked" :keywords="note.keywords" @set-keywords="setKeywords" />
+      <KeywordsForm
+      :form-locked="formLocked"
+      :keywords="note.keywords"
+      @set-keywords="setKeywords"
+      @dismiss="showingKeywordsForm = false" />
     </dialog>
   </Transition>
   <Transition>
     <dialog class="dialog" :open="showingReferenceForm" v-if="showingReferenceForm">
-      <ReferenceForm :form-locked="formLocked" :reference="note.reference" @set-reference="setReference" />
+      <ReferenceForm
+      :form-locked="formLocked"
+      :reference="note.reference"
+      @set-reference="setReference"
+      @dismiss="showingReferenceForm = false" />
     </dialog>
   </Transition>
 

@@ -75,7 +75,7 @@ async function search() {
         <div class="tabs">
           <button
           type="button"
-          class="button button_rounded button_icon button_bg-back"
+          class="button button_rounded button_icon button_bg-cancel"
           :disabled="loading"
           @click="emit('hide-query-form')"
           >Back</button>

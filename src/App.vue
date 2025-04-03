@@ -256,15 +256,15 @@ function showPasswordForm() {
 }
 
 .button_rounded {
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
 }
 
 .button_icon {
   font-size: 0;
   background-repeat: no-repeat;
-  background-size: 16px;
+  background-size: 18px;
   background-position: center;
 }
 
@@ -280,8 +280,8 @@ function showPasswordForm() {
   background-image: url('./assets/icons8-add-24.png');
 }
 
-.button_bg-back {
-  background-image: url('./assets/icons8-back-24.png');
+.button_bg-cancel {
+  background-image: url('./assets/icons8-cancel-24.png');
 }
 
 .button_bg-check {
@@ -308,20 +308,20 @@ function showPasswordForm() {
   background-image: url('./assets/icons8-key-24.png');
 }
 
-.button_bg-tag {
-  background-image: url('./assets/icons8-tag-24.png');
+.button_bg-tags {
+  background-image: url('./assets/icons8-tags-24.png');
 }
 
-.button_bg-link {
-  background-image: url('./assets/icons8-link-24.png');
+.button_bg-author {
+  background-image: url('./assets/icons8-whose-quest-50.png');
 }
 
 .button_bg-x {
   background-image: url('./assets/icons8-close-24.png');
 }
 
-.button_bg-clear {
-  background-image: url('./assets/icons8-broom-24.png');
+.button_bg-eraser {
+  background-image: url('./assets/icons8-eraser-24.png');
 }
 
 .button_bg-undo {

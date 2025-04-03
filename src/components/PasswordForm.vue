@@ -104,7 +104,7 @@ async function updatePassword() {
     <div class="actions-panel__layer-1">
       <div class="tabs">
         <button
-        class="button button_rounded button_icon button_bg-back"
+        class="button button_rounded button_icon button_bg-cancel"
         type="button"
         @click="emit('close-form')"
         >Back</button>

@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 
 const props = defineProps(['reference', 'formLocked'])
-const emit = defineEmits(['setReference'])
+const emit = defineEmits(['dismiss', 'setReference'])
 
 onMounted(() => {
   if (props.reference) setOriginalValues()
@@ -321,23 +321,29 @@ function fieldIsRequired(field: string) {
     </div>
     <div class="actions">
       <button
-      v-if="(props.reference || reference) && !props.formLocked"
       type="button"
-      class="button button_rounded button_icon button_bg-clear"
-      title="Clear reference"
-      @click="clear">
-      Clear</button>
+      class="button button_rounded button_icon button_bg-cancel"
+      title="Dismiss"
+      @click="emit('dismiss')">
+      Dismiss</button>
       <button
-      v-if="props.reference && !props.formLocked"
       type="button"
       title="Restore to original"
       class="button button_rounded button_icon button_bg-undo"
-      :disabled="entriesToString === props.reference"
+      :disabled="(entriesToString === props.reference) || !props.reference || props.formLocked"
       @click="setOriginalValues">
       Restore</button>
       <button
+      :disabled="props.formLocked || !reference"
+      type="button"
+      class="button button_rounded button_icon button_bg-eraser"
+      title="Clear fields"
+      @click="clear">
+      Clear</button>
+      <button
       type="submit"
-      class="button button_rounded button_icon button_bg-check">
+      class="button button_rounded button_icon button_bg-check"
+      :disabled="formLocked || (!entriesToString && !props.reference) || entriesToString === props.reference">
       Confirm</button>
     </div>
   </form>
@@ -431,8 +437,9 @@ function fieldIsRequired(field: string) {
 
 .actions {
   position: absolute;
+  width: 100%;
   bottom: 12px;
-  left: calc(50% - 103px);
+  left: 0;
   display: flex;
   justify-content: center;
   gap: 64px;
