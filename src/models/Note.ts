@@ -2,17 +2,15 @@ import { Create, Update, Destroy } from '../api'
 
 export default class Note {
   id: string | undefined
-  title: string
   body: string
   keywords: string | null
   reference: string | null
 
-  constructor({ id, title, body, keywords, reference }: { id?: string, title?: string, body?: string, keywords?: string | null, reference?: string | null}) {
-    this.id = id ?? undefined
-    this.title = title ?? ''
+  constructor({ id, body, keywords, reference }: { id?: string, body?: string, keywords?: string | null, reference?: string | null}) {
+    this.id = id
     this.body = body ?? ''
-    this.keywords = keywords ?? null
-    this.reference = reference ?? null
+    this.keywords = keywords || null
+    this.reference = reference || null
   }
 
   create(token: string) {
@@ -28,7 +26,6 @@ export default class Note {
   }
 
   clear() {
-    this.title = ''
     this.body = ''
     this.keywords = null
     this.reference = null

@@ -15,10 +15,13 @@ const emit = defineEmits(['close-form', 'remove-selected-note'])
 const props = defineProps(['selectedNote'])
 const { getAccessTokenSilently } = useAuth0()
 
-const note = ref(new Note({}))
+const note = ref(new Note({
+  body: '',
+  reference: null,
+  keywords: null
+}))
 const loading = ref(false)
 const formLocked = ref(true)
-const title = ref<HTMLElement | null>(null)
 const fieldset = ref<HTMLElement | null>(null)
 const updating = ref(false)
 const alerting = ref(false)
@@ -26,8 +29,7 @@ const alertData = ref({ title: '', message: '', confirming: false, onConfirm: ()
 const showingKeywordsForm = ref(false)
 const showingReferenceForm = ref(false)
 
-const invalidForm = computed(() => ['title', 'body']
-  .some((mandatoryField) => !note.value[mandatoryField as keyof Note]))
+const invalidForm = computed(() => note.body?.length < 5)
 
 const unmodified = computed(() => {
   const formValues = JSON.stringify({ ...note.value })
@@ -42,8 +44,8 @@ function startFromPreset() {
   note.value = new Note({ ...props.selectedNote })
 }
 
-function focusOnTitle() {
-  nextTick().then(() => title.value?.focus())
+function focusOnField() {
+  document.getElementById('body')?.focus()
 }
 
 function setKeywords(keywords: string) {
@@ -105,7 +107,7 @@ async function destroy() {
 
 function unlockForm() {
   formLocked.value = false
-  focusOnTitle()
+  focusOnField()
 }
 
 function onDelete() {
@@ -136,22 +138,11 @@ function closeForm() {
   @submit.prevent="handleSubmit">
     <fieldset class="form__fieldset" ref="fieldset">
 
-      <input
-      id="title"
-      class="form__input form__input_text-lg"
-      type="text"
-      placeholder="New Record"
-      required
-      v-model.trim="note.title"
-      autocomplete="off"
-      ref="title"
-      :disabled="loading || formLocked">
-
       <div class="text-container">
         <textarea
         id="body"
         class="form__textarea"
-        placeholder="Type the content of your record here."
+        :placeholder="`# Title\n\nThe body of the note...`"
         required
         autocomplete="off"
         v-model.trim="note.body"
@@ -193,7 +184,7 @@ function closeForm() {
           :disabled="loading || invalidForm || (updating && unmodified)"
           :class="{ 'button_pulse': loading, 'button_highlight': !invalidForm && !unmodified }"
           @click="handleSubmit"
-          >{{ loading ? 'Loading' : 'Save' }}</button>
+          >Save</button>
           <button
           v-if="formLocked"
           class="button button_rounded button_icon button_bg-edit"
