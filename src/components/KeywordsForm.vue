@@ -17,9 +17,9 @@ function setOriginalValues() {
 }
 
 function addKeyword() {
-  const value = keyword.value.trim().toLowerCase()
+  const value = keyword.value.toLowerCase()
   if (value.length < 3 || keywords.value?.includes(value)) return
-  keywords.value += `, ${value}`
+  keywords.value += keywords.value ? `, ${value}` : value
   keyword.value = ''
 }
 
@@ -41,7 +41,7 @@ function clear() {
       id="keyword"
       type="text"
       class="form__input"
-      v-model="keyword"
+      v-model.trim="keyword"
       placeholder="Type a keyword and press enter to add it.">
       <button
       type="submit"
