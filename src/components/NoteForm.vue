@@ -15,11 +15,7 @@ const emit = defineEmits(['close-form', 'remove-selected-note'])
 const props = defineProps(['selectedNote'])
 const { getAccessTokenSilently } = useAuth0()
 
-const note = ref(new Note({
-  body: '',
-  reference: null,
-  keywords: null
-}))
+const note = ref(new Note({ body: '', reference: null, keywords: null }))
 const loading = ref(false)
 const formLocked = ref(true)
 const fieldset = ref<HTMLElement | null>(null)
@@ -29,12 +25,11 @@ const alertData = ref({ title: '', message: '', confirming: false, onConfirm: ()
 const showingKeywordsForm = ref(false)
 const showingReferenceForm = ref(false)
 
-const invalidForm = computed(() => note.body?.length < 5)
+const invalidForm = computed(() => note.value.body.length < 5)
 
 const unmodified = computed(() => {
   const formValues = JSON.stringify({ ...note.value })
-  if (updating.value) delete props.selectedNote.date
-  const originalValues = JSON.stringify(updating.value ? { ...props.selectedNote } : new Note({}))
+  const originalValues = JSON.stringify(updating.value ? props.selectedNote : new Note({})) 
   return formValues === originalValues
 })
 
@@ -45,7 +40,7 @@ function startFromPreset() {
 }
 
 function focusOnField() {
-  document.getElementById('body')?.focus()
+  nextTick(() => document.getElementById('body')?.focus())
 }
 
 function setKeywords(keywords: string) {
@@ -68,11 +63,19 @@ function alertAndClose() {
   setTimeout(() => emit('close-form', note.value), 1250)
 }
 
+function getModifiedAttributes(note: Partial<Note>) {
+  if (note.body === props.selectedNote.body) delete note.body
+  if (note.keywords === props.selectedNote.keywords) delete note.keywords
+  if (note.reference === props.selectedNote.reference) delete note.reference
+  delete note.date
+  return note
+}
+
 async function handleSubmit() {
   loading.value = true
   try {
     const token = await getAccessTokenSilently()
-    if (updating.value) await note.value.update(token)
+    if (updating.value) await note.value.update(token, getModifiedAttributes({ ...note.value }))
     else await note.value.create(token)
     alertAndClose()
   } catch (error) {
@@ -162,7 +165,7 @@ function closeForm() {
       @click="showingReferenceForm = true"
       >Add reference</button>
     </div>
-    
+
   </form>
 
 

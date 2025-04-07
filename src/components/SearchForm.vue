@@ -61,10 +61,11 @@ async function search() {
   @submit.prevent="search" @keyup.esc="() => emit('hide-query-form')">
     <label class="form__label" for="search">Search string</label>
     <input
-    type="text"
-    placeholder="Type here to search"
     id="search"
     class="form__input form__input_border-bottom"
+    type="text"
+    placeholder="Type here to search"
+    autocomplete="off"
     v-model.trim="searchString"
     :disabled="loading"
     @keypress.enter="search">
