@@ -5,6 +5,7 @@ import Note from '../models/Note.ts'
 import Prompt from './Prompt.vue'
 import KeywordsForm from './KeywordsForm.vue'
 import ReferenceForm from './ReferenceForm.vue'
+import SuccessMark from './SuccessMark.vue'
 
 onMounted(() => {
   if (props.selectedNote != null) startFromPreset()
@@ -24,6 +25,7 @@ const alerting = ref(false)
 const alertData = ref({ title: '', message: '', confirming: false, onConfirm: () => {} })
 const showingKeywordsForm = ref(false)
 const showingReferenceForm = ref(false)
+const showingSuccessMark = ref(false)
 
 const invalidForm = computed(() => note.value.body.length < 5)
 
@@ -37,6 +39,11 @@ function startFromPreset() {
   updating.value = true
   formLocked.value = true
   note.value = new Note({ ...props.selectedNote })
+}
+
+function showSuccessMark() {
+  showingSuccessMark.value = true
+  setTimeout(() => emit('close-form'), 1500)
 }
 
 function focusOnField() {
@@ -58,11 +65,6 @@ function showAlert(alertInfo: { title: string, message: string, confirming: bool
   alerting.value = true
 }
 
-function alertAndClose() {
-  showAlert({ title: 'Done', message: 'Record saved successfully.', confirming: false, onConfirm: () => {} })
-  setTimeout(() => emit('close-form', note.value), 1250)
-}
-
 function getModifiedAttributes(note: Partial<Note>) {
   if (note.body === props.selectedNote.body) delete note.body
   if (note.keywords === props.selectedNote.keywords) delete note.keywords
@@ -77,7 +79,7 @@ async function handleSubmit() {
     const token = await getAccessTokenSilently()
     if (updating.value) await note.value.update(token, getModifiedAttributes({ ...note.value }))
     else await note.value.create(token)
-    alertAndClose()
+    showSuccessMark()
   } catch (error) {
     showAlert({ title: 'Attention', message: 'An error occurred. Please try again later.', confirming: false, onConfirm: () => {} })
   } finally {
@@ -90,13 +92,8 @@ async function destroy() {
     const token = await getAccessTokenSilently()
     await note.value.destroy(token)
     emit('remove-selected-note')
-    showAlert({
-      title: 'Done',
-      message: 'Record deleted successfully.',
-      confirming: false,
-      onConfirm: () => {}
-    })
-    setTimeout(() => emit('close-form'), 1250)
+    alerting.value = false
+    showSuccessMark()
   } catch (__) {
     alerting.value = false
     nextTick().then(() => showAlert({
@@ -137,7 +134,7 @@ function closeForm() {
 <template>
   <form
   class="form"
-  :class="{ 'form_blur': alerting || showingKeywordsForm || showingReferenceForm }"
+  :class="{ 'form_blur': alerting || showingSuccessMark || showingKeywordsForm || showingReferenceForm }"
   @submit.prevent="handleSubmit">
     <fieldset class="form__fieldset" ref="fieldset">
 
@@ -172,7 +169,7 @@ function closeForm() {
   <Transition>
     <div
     class="actions-panel"
-    :class="{ 'actions-panel_blur': alerting || showingKeywordsForm || showingReferenceForm }">
+    :class="{ 'actions-panel_blur': alerting || showingSuccessMark || showingKeywordsForm || showingReferenceForm }">
       <div class="actions-panel__layer-1">
         <div class="tabs">
           <button
@@ -235,6 +232,7 @@ function closeForm() {
       @dismiss="showingReferenceForm = false" />
     </dialog>
   </Transition>
+  <SuccessMark v-if="showingSuccessMark" />
 
 </template>
 

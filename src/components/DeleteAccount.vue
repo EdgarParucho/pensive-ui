@@ -3,6 +3,7 @@ import { ref, computed, onMounted, nextTick } from "vue"
 import { useAuth0 } from "@auth0/auth0-vue"
 import { Destroy } from "../api/account"
 import Prompt from "./Prompt.vue"
+import SuccessMark from './SuccessMark.vue'
 
 onMounted(focusOnField)
 
@@ -17,6 +18,7 @@ const promptData = ref({
   message: '',
 })
 const loading = ref(false)
+const showingSuccessMark = ref(false)
 
 const invalidForm = computed(() => input.value.toLocaleLowerCase().trim() !== expectedInput.value)
 
@@ -24,17 +26,17 @@ function focusOnField() {
   document.getElementById('text')?.focus()
 }
 
+function showSuccessMark() {
+  showingSuccessMark.value = true
+  setTimeout(() => logout(), 1500)
+}
+
 async function deleteAccount() {
   loading.value = true
   try {
     const token = await getAccessTokenSilently()
     await Destroy(token)
-    promptData.value = {
-      active: true,
-      title: 'Done',
-      message: 'Account deleted.'
-    }
-    logout()
+    showSuccessMark()
   } catch (__) {
     promptData.value = {
       active: true,
@@ -50,7 +52,10 @@ async function deleteAccount() {
 </script>
 
 <template>
-  <form class="form form_sm" :class="{ 'form_blur': promptData.active }" @submit.prevent="deleteAccount">
+  <form
+  class="form form_sm"
+  :class="{ 'form_blur': promptData.active || showingSuccessMark }"
+  @submit.prevent="deleteAccount">
     <p>Please type <kbd class="confirmation-text">delete my account</kbd> and confirm. <br>This action is irreversible.</p>
     <label class="form__label" for="text">Confirmation field</label>
     <input
@@ -87,6 +92,7 @@ async function deleteAccount() {
       :confirming="false" />
     </dialog>
   </Transition>
+  <SuccessMark v-if="showingSuccessMark" />
 </template>
 
 <style scoped>

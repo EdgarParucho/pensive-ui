@@ -5,10 +5,10 @@ const emit = defineEmits(['show-query-form', 'show-note-form'])
 <template>
   <aside class="menu">
     <button
-      class="button button_bl-rounded button_icon button_bg-search"
-      type="button"
-      @click="() => emit('show-query-form')"
-      >Search</button>
+    class="button button_bl-rounded button_icon button_bg-search"
+    type="button"
+    @click="() => emit('show-query-form')"
+    >Search</button>
     <button
     class="button button_br-rounded button_icon button_bg-add"
     type="button"

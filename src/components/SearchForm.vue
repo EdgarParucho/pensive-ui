@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
 import { Read } from '../api'
 import Prompt from './Prompt.vue'
+import SuccessMark from './SuccessMark.vue'
 import Note from '../models/Note'
 
 onMounted(focusOnField)
@@ -13,8 +14,14 @@ const searchString = ref('')
 const loading = ref(false)
 const alerting = ref(false)
 const alertData = ref({ title: '', message: '' })
+const showingSuccessMark = ref(false)
 
 const invalidQuery = computed(() => searchString.value.replace(' ', '').length < 3)
+
+function showSuccessMark() {
+  showingSuccessMark.value = true
+  setTimeout(() => emit('hide-query-form'), 1500)
+}
 
 function focusOnField() {
   document.getElementById('search')?.focus()
@@ -25,15 +32,14 @@ function showAlert(alertInfo: { title: string, message: string }) {
   alerting.value = true
 }
 
-function dismissPrompt() {
+function hideAlert() {
   alerting.value = false
   focusOnField()
 }
 
 function setNotes(data: Note[]) {
   emit('set-notes', { data })
-  showAlert({ title: 'Done', message: `Records found: ${data.length}` })
-  setTimeout(() => emit('hide-query-form'), 1250)
+  showSuccessMark()
 }
 
 async function search() {
@@ -57,7 +63,7 @@ async function search() {
 <template>
   <form
   class="form form_sm"
-  :class="{ 'form_blur': alerting }"
+  :class="{ 'form_blur': alerting || showingSuccessMark }"
   @submit.prevent="search" @keyup.esc="() => emit('hide-query-form')">
     <label class="form__label" for="search">Search string</label>
     <input
@@ -71,7 +77,7 @@ async function search() {
     @keypress.enter="search">
   </form>
   <Transition>
-    <div class="actions-panel" :class="{ 'actions-panel_blur': alerting }">
+    <div class="actions-panel" :class="{ 'actions-panel_blur': alerting || showingSuccessMark }">
       <div class="actions-panel__layer-1">
         <div class="tabs">
           <button
@@ -81,10 +87,11 @@ async function search() {
           @click="emit('hide-query-form')"
           >Back</button>
           <button
-          type="submit"
+          type="button"
           class="button button_rounded button_icon button_bg-check"
           :class="{ 'button_pulse': loading, 'button_highlight': !invalidQuery }"
           :disabled="loading || invalidQuery"
+          @click="search"
           >Search</button>
         </div>
       </div>
@@ -95,10 +102,11 @@ async function search() {
       <Prompt
       :title="alertData.title"
       :message="alertData.message"
-      @dismiss="dismissPrompt"
+      @dismiss="hideAlert"
       :confirming="false" />
     </dialog>
   </Transition>
+  <SuccessMark v-if="showingSuccessMark" />
 </template>
 
 <style scoped>

@@ -3,6 +3,7 @@ import { ref, computed, onMounted, nextTick } from "vue"
 import { useAuth0 } from "@auth0/auth0-vue"
 import { Update } from "../api/account"
 import Prompt from "./Prompt.vue"
+import SuccessMark from './SuccessMark.vue'
 
 onMounted(focusOnField)
 
@@ -17,6 +18,7 @@ const promptData = ref({
   message: '',
 })
 const loading = ref(false)
+const showingSuccessMark = ref(false)
 
 const passwordRequirements = [
   { text: 'Number', test: (value: string) => /\d/.test(value) },
@@ -31,6 +33,11 @@ const invalidForm = computed(() => !fieldsMatch.value || !lengthFulfilled.value 
   passwordRequirements.filter(requirement => requirement.test(password.value)).length < 3
 )
 
+function showSuccessMark() {
+  showingSuccessMark.value = true
+  setTimeout(() => emit('close-form'), 1500)
+}
+
 function focusOnField() {
   document.getElementById('password')?.focus()
 }
@@ -40,12 +47,7 @@ async function updatePassword() {
   try {
     const token = await getAccessTokenSilently()
     await Update({ password: password.value, token })
-    promptData.value = {
-      active: true,
-      title: 'Done!',
-      message: 'Password updated.'
-    }
-    setTimeout(() => emit('close-form'), 1250)
+    showSuccessMark()
   } catch (__) {
     promptData.value = {
       active: true,
@@ -61,7 +63,7 @@ async function updatePassword() {
 </script>
 
 <template>
-  <form class="form" :class="{ 'form_blur': promptData.active }" @submit.prevent="updatePassword">
+  <form class="form" :class="{ 'form_blur': promptData.active || showingSuccessMark }" @submit.prevent="updatePassword">
     <label class="form__label" for="password">Password</label>
     <input
     id="password"
@@ -100,7 +102,7 @@ async function updatePassword() {
       </ul>
     </div>
   </form>
-  <div class="actions-panel" :class="{ 'actions-panel_blur': promptData.active }">
+  <div class="actions-panel" :class="{ 'actions-panel_blur': promptData.active || showingSuccessMark }">
     <div class="actions-panel__layer-1">
       <div class="tabs">
         <button
@@ -126,6 +128,7 @@ async function updatePassword() {
       :confirming="false" />
     </dialog>
   </Transition>
+  <SuccessMark v-if="showingSuccessMark" />
 </template>
 
 <style scoped>
