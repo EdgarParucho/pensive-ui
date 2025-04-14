@@ -38,8 +38,8 @@ const authorString = computed(() => {
   switch (authors.value.length) {
     case 0: return getAuthorNames(form.value)
     case 1: return getAuthorNames(authors.value[0])
-    case 2: return getAuthorNames(authors.value[0]) + `, and ${getAuthorNames(authors.value[1])}`
-    default: return `${getAuthorNames(authors.value[0])}, et al.`
+    case 2: return getAuthorNames(authors.value[0]) + `, and ${getAuthorNames(authors.value[1], false)}`
+    default: return `${getAuthorNames(authors.value[0])}, et al`
   }
 })
 
@@ -57,7 +57,7 @@ const entriesToString = computed(() => {
     authors: authors.value.length ? authors.value : [{
       firstName: form.value.firstName,
       lastName: form.value.lastName,
-      fullName: [form.value.firstName, form.value.lastName] .join(' ') .trim() || 'Unknown author'
+      fullName: [form.value.firstName, form.value.lastName].join(' ').trim() || 'Unknown author'
     }],
   }
 
@@ -70,34 +70,13 @@ const entriesToString = computed(() => {
   return JSON.stringify(entries)
 })
 
-const reference = computed(() => {
-  if (!form.value.typeOfReference) return ''
-  if (form.value.typeOfReference === 'custom') return form.value.custom
-  const { typeOfReference, authors, ...rest } = JSON.parse(entriesToString.value)
-  const values = Object.values(rest);
-  return [authorString.value, ...values as string[]].map(cleanString).join(' ')}
-)
-
-function getAuthorNames({ firstName, lastName }: { firstName: string, lastName: string }) {
-  if (firstName && lastName) return lastName.concat(`, ${nameFormatted(firstName)}`)
+function getAuthorNames({ firstName, lastName }: { firstName: string, lastName: string }, invert = true) {
+  if (firstName && lastName) return (invert) ? `${lastName}, ${firstName}` : `${firstName} ${lastName}`
   else return firstName || lastName || 'Unknown author.'
 }
 
 function typeFormatted(type: string) {
   return type[0].toUpperCase() + type.slice(1).replace('-', ' ')
-}
-
-function nameFormatted(name: string) {
-  if (name.includes(' ')) return name.split(' ').map(n => n[0]).join('.') + '.'
-  else if (name.includes('.')) return name.split('.').map(n => n[0]).join('.')
-  else return name[0] + '.'
-}
-
-function cleanString(str: string) {
-  if (!str) return ''
-  str = str.replace(/\s+/g, ' ')
-  str = (str.endsWith('.')) ? str : str + '.'
-  return str
 }
 
 function setOriginalValues() {
@@ -175,11 +154,11 @@ function fieldIsRequired(field: string) {
       <Transition>
         <label
         v-if="fieldIsRequired('custom')"
-        for="reference"
+        for="custom"
         class="form__label form__label_w-lg form__label_ml-16"
         >Custom
           <input
-          id="reference"
+          id="custom"
           type="text"
           class="form__input form__input_w-lg"
           v-model="form.custom"
@@ -321,8 +300,18 @@ function fieldIsRequired(field: string) {
         </div>
       </Transition>
     </fieldset>
-    <div class="reference-container" v-if="reference">
-      <p class="reference-text">{{ reference }}</p>
+    <div class="reference-container" v-if="form.typeOfReference">
+      <p class="reference-text" v-if="form.typeOfReference === 'custom'">{{ form.custom }}</p>
+      <p class="reference-text" v-else>
+        <span>{{ authorString }}. </span>
+        <i class="text-italic" v-if="form.typeOfReference === 'book'">{{ form.title }}. </i>
+        <span v-else>"{{ form.title }}." </span>
+        <span v-if="form.typeOfReference === 'book'">{{ form.publisher }}, {{ form.year }}.</span>
+        <i class="text-italic" v-if="form.typeOfReference === 'website'">{{ form.website }}</i>
+        <i class="text-italic" v-if="form.typeOfReference === 'media'">{{ form.platform }}</i>
+        <span v-if="form.typeOfReference === 'online-lesson'">{{ form.typeOfClass }}, {{ form.institution }}</span>
+        <span v-if="form.typeOfReference !== 'book'">, {{ form.year }}, {{ form.url }}.</span>
+       </p>
     </div>
     <div class="actions">
       <button
@@ -339,7 +328,7 @@ function fieldIsRequired(field: string) {
       @click="setOriginalValues">
       Restore</button>
       <button
-      :disabled="props.formLocked || !reference"
+      :disabled="props.formLocked || !form.typeOfReference"
       type="button"
       class="button button_rounded button_icon button_bg-eraser"
       title="Clear fields"
@@ -487,6 +476,10 @@ function fieldIsRequired(field: string) {
 .reference-text {
   color: var(--neutral);
   font-size: .8rem;
+}
+
+.text-italic {
+  font-style: italic;
 }
 
 /* Remove spinners in Chrome, Edge, and Safari */
