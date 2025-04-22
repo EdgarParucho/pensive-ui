@@ -1,6 +1,5 @@
 <script setup lang='ts'>
 
-
 defineProps(['notes'])
 const emit = defineEmits(['read-note'])
 

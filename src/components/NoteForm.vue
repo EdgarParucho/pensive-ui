@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { computed, nextTick, onMounted, ref } from 'vue'
+import { ref, computed, onMounted, inject, nextTick, type Ref } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
 import Note from '../models/Note.ts'
 import Prompt from './Prompt.vue'
@@ -8,12 +8,14 @@ import ReferenceForm from './ReferenceForm.vue'
 import SuccessMark from './SuccessMark.vue'
 
 onMounted(() => {
-  if (props.selectedNote != null) startFromPreset()
+  if (selectedNote.value) startFromPreset()
   else unlockForm()
 })
 
-const emit = defineEmits(['close-form', 'remove-selected-note'])
-const props = defineProps(['selectedNote'])
+const selectedNote = inject('selectedNote') as Ref<Note>
+const updateNote = inject('updateNote') as (note: Note) => void
+const deleteNote = inject('deleteNote') as () => void
+const emit = defineEmits(['dismiss-dialog'])
 const { getAccessTokenSilently } = useAuth0()
 
 const note = ref(new Note({ body: '', reference: null, keywords: null }))
@@ -31,19 +33,19 @@ const invalidForm = computed(() => note.value.body.length < 5)
 
 const unmodified = computed(() => {
   const formValues = JSON.stringify({ ...note.value })
-  const originalValues = JSON.stringify(updating.value ? props.selectedNote : new Note({})) 
+  const originalValues = JSON.stringify(updating.value ? selectedNote.value : new Note({})) 
   return formValues === originalValues
 })
 
 function startFromPreset() {
   updating.value = true
   formLocked.value = true
-  note.value = new Note({ ...props.selectedNote })
+  note.value = new Note({ ...selectedNote.value })
 }
 
 function showSuccessMark() {
   showingSuccessMark.value = true
-  setTimeout(() => emit('close-form'), 1500)
+  setTimeout(() => emit('dismiss-dialog'), 1500)
 }
 
 function focusOnField() {
@@ -66,9 +68,9 @@ function showAlert(alertInfo: { title: string, message: string, confirming: bool
 }
 
 function getModifiedAttributes(note: Partial<Note>) {
-  if (note.body === props.selectedNote.body) delete note.body
-  if (note.keywords === props.selectedNote.keywords) delete note.keywords
-  if (note.reference === props.selectedNote.reference) delete note.reference
+  if (note.body === selectedNote.value.body) delete note.body
+  if (note.keywords === selectedNote.value.keywords) delete note.keywords
+  if (note.reference === selectedNote.value.reference) delete note.reference
   delete note.date
   return note
 }
@@ -77,8 +79,12 @@ async function handleSubmit() {
   loading.value = true
   try {
     const token = await getAccessTokenSilently()
-    if (updating.value) await note.value.update(token, getModifiedAttributes({ ...note.value }))
-    else await note.value.create(token)
+    if (updating.value) {
+      await note.value.update(token, getModifiedAttributes({ ...note.value }))
+      updateNote(note.value)
+    } else {
+      await note.value.create(token)
+    }
     showSuccessMark()
   } catch (error) {
     showAlert({ title: 'Attention', message: 'An error occurred. Please try again later.', confirming: false, onConfirm: () => {} })
@@ -91,7 +97,7 @@ async function destroy() {
   try {
     const token = await getAccessTokenSilently()
     await note.value.destroy(token)
-    emit('remove-selected-note')
+    deleteNote()
     alerting.value = false
     showSuccessMark()
   } catch (__) {
@@ -120,12 +126,12 @@ function onDelete() {
 }
 
 function closeForm() {
-  if (unmodified.value) emit('close-form')
+  if (unmodified.value) emit('dismiss-dialog')
   else showAlert({
     title: 'Discard changes?',
     message: 'Please confirm to proceed.',
     confirming: true,
-    onConfirm: () => emit('close-form')
+    onConfirm: () =>  emit('dismiss-dialog')
   })
 }
 

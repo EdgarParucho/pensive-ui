@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, provide } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
 import Note from './models/Note.ts'
+import LoginView from './components/LoginView.vue'
 import NoteForm from './components/NoteForm.vue'
 import SearchForm from './components/SearchForm.vue'
-import LoginView from './components/LoginView.vue'
 import SettingsMenu from './components/SettingsMenu.vue'
 import PasswordForm from './components/PasswordForm.vue'
 import DeleteAccount from './components/DeleteAccount.vue'
@@ -14,139 +14,91 @@ import NoteList from './components/NoteList.vue'
 const { isAuthenticated } = useAuth0()
 
 const notes = ref<Note[]>([])
-const showingNoteForm = ref(false)
-const showingQueryForm = ref(false)
 const selectedNote = ref<Note | null>(null)
-const showingSettings = ref(false)
-const showingPasswordForm = ref(false)
-const showingDeleteAccountForm = ref(false)
-const promptData = ref({
-  active: false,
-  title: '',
-  message: '',
-  onConfirm: () => {},
-  confirming: false
-})
 
-function toggleSettings() {
-  showingSettings.value = !showingSettings.value
+const showingDialog = ref(false)
+const dialogChild = ref('')
+const dialogChilds = {
+  NoteForm,
+  SearchForm,
+  SettingsMenu,
+  PasswordForm,
+  DeleteAccount
 }
 
-const dialogIsHidden = computed(() => {
-  return !showingNoteForm.value && !showingQueryForm.value && !showingPasswordForm.value && !showingDeleteAccountForm.value
-})
+function showDialog(child: string) {
+  dialogChild.value = child
+  showingDialog.value = true
+}
+
+function dismissDialog() {
+  showingDialog.value = false
+  selectedNote.value = null
+  dialogChild.value = ''
+}
 
 function setNotes({ data }: { data: Note[] }) {
   notes.value = data
 }
 
-function removeSelectedNote() {
-  setNotes({ data: notes.value.filter(n => n.id !== selectedNote.value!.id as string )})
-}
-
-function showNoteForm(note?: Note) {
-  if (note) selectedNote.value = note
-  showingNoteForm.value = true
-}
-
-function hideNoteForm(note?: Note) {
-  if (selectedNote.value && note) updateNotes(note)
-  selectedNote.value = null
-  showingNoteForm.value = false
-}
-
-function updateNotes(note: Note) {
+function updateNote(note: Note) {
   const updatedIndex = notes.value.findIndex(n => n.id == note.id)
   notes.value.splice(updatedIndex, 1, note)
 }
 
-
-function showQueryForm() {
-  showingQueryForm.value = true
+function deleteNote() {
+  setNotes({ data: notes.value.filter(n => n.id !== selectedNote.value!.id as string )})
 }
 
-function hideQueryForm() {
-  showingQueryForm.value = false
+function readNote(note: Note) {
+  selectedNote.value = note
+  showDialog('NoteForm')
 }
 
-function showDeleteAccountForm() {
-  showingDeleteAccountForm.value = true
-}
-
-function showPasswordForm() {
-  showingPasswordForm.value = true
-}
+provide('setNotes', setNotes)
+provide('updateNote', updateNote)
+provide('deleteNote', deleteNote)
+provide('showDeleteAccountForm', () => showDialog('DeleteAccount'))
+provide('showPasswordForm', () => showDialog('PasswordForm'))
+provide('selectedNote', selectedNote)
 
 </script>
 
 <template>
-  <main class="base-container" :class="{ 'base-container_blur': promptData.active }">
+  <main class="base-container">
 
-    <Transition>
-      <header v-if="dialogIsHidden">
-        <button
-        v-if="isAuthenticated"
-        class="button button_ml-auto button_icon button_bg-avatar"
-        type="button"
-        @click="toggleSettings"
-        @keyup.esc="toggleSettings"
-        @blur="showingSettings = false"
-        >SettingsMenu</button>
-        <LoginView v-else />
-        <ActionButtons
-        v-if="isAuthenticated"
-        @show-query-form="showQueryForm"
-        @show-note-form="showNoteForm" />
-      </header>
-    </Transition>
+    <header class="header" :class="{ 'header_blur': showingDialog }">
 
-    <Transition>
-      <NoteList
-      v-if="notes.length > 0 && dialogIsHidden"
-      :notes="notes"
-      @read-note="(note: Note) => showNoteForm(note)"/>
-    </Transition>
+      <button
+      v-if="isAuthenticated"
+      class="button button_ml-auto button_icon button_bg-avatar"
+      type="button"
+      @click="showDialog('SettingsMenu')"
+      >SettingsMenu</button>
 
-    <Transition>
-      <dialog
-      @click.self="showingQueryForm = false"
-      class="dialog"
-      :open="showingQueryForm" v-if="showingQueryForm">
-        <SearchForm @set-notes="setNotes" @hide-query-form="hideQueryForm" />
-      </dialog>
-    </Transition>
+      <LoginView v-if="!isAuthenticated" />
+
+      <ActionButtons
+      v-if="isAuthenticated"
+      @show-query-form="showDialog('SearchForm')"
+      @show-note-form="showDialog('NoteForm')" />
+
+    </header>
+
+    <NoteList
+    v-if="isAuthenticated && !showingDialog && notes.length"
+    :notes="notes"
+    @read-note="(note: Note) => readNote(note)" />
 
     <Transition>
       <dialog
-      @click.self="showingPasswordForm = false"
       class="dialog"
-      :open="showingPasswordForm" v-if="showingPasswordForm">
-        <PasswordForm @close-form="showingPasswordForm = false" />
-      </dialog>
-    </Transition>
-
-    <Transition>
-      <dialog
-      @click.self="showingDeleteAccountForm = false"
-      class="dialog"
-      :open="showingDeleteAccountForm" v-if="showingDeleteAccountForm">
-        <DeleteAccount @close-form="showingDeleteAccountForm = false" />
-      </dialog>
-    </Transition>
-
-    <Transition>
-      <SettingsMenu
-      v-show="showingSettings && dialogIsHidden"
-      @show-delete-account-form="showDeleteAccountForm"
-      @show-password-form="showPasswordForm" />
-    </Transition>
-
-    <Transition>
-      <dialog class="dialog" :open="showingNoteForm" v-if="showingNoteForm">
-        <NoteForm
-        :selected-note="selectedNote"
-        @close-form="hideNoteForm"
-        @remove-selected-note="removeSelectedNote" />
+      @click.self="dismissDialog"
+      :open="showingDialog"
+      v-if="showingDialog">
+        <component
+        :is="dialogChilds[dialogChild as keyof typeof dialogChilds]"
+        @dismiss-dialog="dismissDialog" />
       </dialog>
     </Transition>
 
@@ -166,6 +118,14 @@ function showPasswordForm() {
   opacity: 0;
 }
 
+.header {
+  transition: filter .5s;
+}
+
+.header_blur {
+  filter: blur(4px);
+}
+
 .base-container {
   height: 100vh;
   width: 100vw;
@@ -173,10 +133,6 @@ function showPasswordForm() {
   position: absolute;
   display: grid;
   transition: filter .2s;
-}
-
-.base-container_blur {
-  filter: blur(4px);
 }
 
 .button {

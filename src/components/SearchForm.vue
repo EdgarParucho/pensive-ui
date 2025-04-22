@@ -1,5 +1,5 @@
 <script setup lang='ts'>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, inject } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
 import { Read } from '../api'
 import Prompt from './Prompt.vue'
@@ -8,8 +8,10 @@ import Note from '../models/Note'
 
 onMounted(focusOnField)
 
+const emit = defineEmits(['dismiss-dialog'])
+const setNotes = inject('setNotes') as (payload: { data: Note[] }) => void
 const { getAccessTokenSilently } = useAuth0()
-const emit = defineEmits(['set-notes', 'hide-query-form'])
+
 const searchString = ref('')
 const loading = ref(false)
 const alerting = ref(false)
@@ -20,7 +22,7 @@ const invalidQuery = computed(() => searchString.value.replace(' ', '').length <
 
 function showSuccessMark() {
   showingSuccessMark.value = true
-  setTimeout(() => emit('hide-query-form'), 1500)
+  setTimeout(() => emit('dismiss-dialog'), 1500)
 }
 
 function focusOnField() {
@@ -37,8 +39,8 @@ function hideAlert() {
   focusOnField()
 }
 
-function setNotes(data: Note[]) {
-  emit('set-notes', { data })
+function setNotesAndDismiss(data: Note[]) {
+  setNotes({ data })
   showSuccessMark()
 }
 
@@ -49,7 +51,7 @@ async function search() {
     const token = await getAccessTokenSilently()
     const { data } = await Read(token, searchString.value)
     const notesFound = data.length > 0
-    if (notesFound) setNotes(data)
+    if (notesFound) setNotesAndDismiss(data)
     else showAlert({ title: 'Attention', message: 'Nothing found with that query.' })
   } catch (__) {
     showAlert({ title: 'Attention', message: 'An error occurred. Please try again later.' })
@@ -64,7 +66,7 @@ async function search() {
   <form
   class="form form_sm"
   :class="{ 'form_blur': alerting || showingSuccessMark }"
-  @submit.prevent="search" @keyup.esc="() => emit('hide-query-form')">
+  @submit.prevent="search" @keyup.esc="() => emit('dismiss-dialog')">
     <label class="form__label" for="search">Search string</label>
     <input
     id="search"
@@ -84,7 +86,7 @@ async function search() {
           type="button"
           class="button button_rounded button_icon button_bg-cancel"
           :disabled="loading"
-          @click="emit('hide-query-form')"
+          @click="emit('dismiss-dialog')"
           >Back</button>
           <button
           type="button"

@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { inject } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
 
-const emit = defineEmits(['showPasswordForm', 'showDeleteAccountForm'])
+const showDeleteAccountForm = inject('showDeleteAccountForm') as () => void
+const showPasswordForm = inject('showPasswordForm') as () => void
+
 const { logout } = useAuth0()
 
 </script>
@@ -12,13 +15,13 @@ const { logout } = useAuth0()
     class="button button_ml-auto button_icon button_bg-key"
     type="button"
     title="Change password"
-    @click="emit('showPasswordForm')"
+    @click="() => showPasswordForm()"
     >Password</button>
     <button
     class="button button_alert button_ml-auto button_icon button_bg-delete-db"
     type="button"
     title="Delete account"
-    @click="emit('showDeleteAccountForm')"
+    @click="() => showDeleteAccountForm()"
     >Delete account</button>
     <button
     class="button button_ml-auto button_icon button_bg-logout"

@@ -8,7 +8,7 @@ import SuccessMark from './SuccessMark.vue'
 onMounted(focusOnField)
 
 const { getAccessTokenSilently, logout } = useAuth0()
-const emit = defineEmits(['close-form'])
+const emit = defineEmits(['dismiss-dialog'])
 
 const input = ref('')
 const expectedInput = ref('delete my account')
@@ -72,7 +72,7 @@ async function deleteAccount() {
         <button
         class="button button_rounded button_icon button_bg-cancel"
         type="button"
-        @click="emit('close-form')"
+        @click="emit('dismiss-dialog')"
         >Back</button>
         <button
         type="submit"

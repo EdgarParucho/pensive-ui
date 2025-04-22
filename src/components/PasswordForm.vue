@@ -8,7 +8,7 @@ import SuccessMark from './SuccessMark.vue'
 onMounted(focusOnField)
 
 const { getAccessTokenSilently } = useAuth0()
-const emit = defineEmits(['close-form'])
+const emit = defineEmits(['dismiss-dialog'])
 
 const password = ref('')
 const passwordConfirm = ref('')
@@ -35,7 +35,7 @@ const invalidForm = computed(() => !fieldsMatch.value || !lengthFulfilled.value 
 
 function showSuccessMark() {
   showingSuccessMark.value = true
-  setTimeout(() => emit('close-form'), 1500)
+  setTimeout(() => emit('dismiss-dialog'), 1500)
 }
 
 function focusOnField() {
@@ -108,7 +108,7 @@ async function updatePassword() {
         <button
         class="button button_rounded button_icon button_bg-cancel"
         type="button"
-        @click="emit('close-form')"
+        @click="emit('dismiss-dialog')"
         >Back</button>
         <button
         class="button button_rounded button_icon button_bg-check"
