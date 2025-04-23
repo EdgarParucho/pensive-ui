@@ -3,42 +3,46 @@ import { ref, provide } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
 import Note from './models/Note.ts'
 import LoginView from './components/LoginView.vue'
+import Header from './components/Header.vue'
+import Aside from './components/Aside.vue'
 import NoteForm from './components/NoteForm.vue'
 import SearchForm from './components/SearchForm.vue'
-import SettingsMenu from './components/SettingsMenu.vue'
 import PasswordForm from './components/PasswordForm.vue'
 import DeleteAccount from './components/DeleteAccount.vue'
-import ActionButtons from './components/ActionButtons.vue'
 import NoteList from './components/NoteList.vue'
 
 const { isAuthenticated } = useAuth0()
 
 const notes = ref<Note[]>([])
 const selectedNote = ref<Note | null>(null)
-
 const showingDialog = ref(false)
-const dialogChild = ref('')
-const dialogChilds = {
+const dialog = ref<keyof typeof dialogs | null>(null)
+
+const dialogs = {
   NoteForm,
   SearchForm,
-  SettingsMenu,
   PasswordForm,
   DeleteAccount
 }
 
-function showDialog(child: string) {
-  dialogChild.value = child
+function showDialog(child: keyof typeof dialogs) {
+  dialog.value = child
   showingDialog.value = true
 }
 
 function dismissDialog() {
   showingDialog.value = false
   selectedNote.value = null
-  dialogChild.value = ''
+  dialog.value = null
 }
 
 function setNotes({ data }: { data: Note[] }) {
   notes.value = data
+}
+
+function readNote(note: Note) {
+  selectedNote.value = note
+  showDialog('NoteForm')
 }
 
 function updateNote(note: Note) {
@@ -50,40 +54,22 @@ function deleteNote() {
   setNotes({ data: notes.value.filter(n => n.id !== selectedNote.value!.id as string )})
 }
 
-function readNote(note: Note) {
-  selectedNote.value = note
-  showDialog('NoteForm')
-}
-
 provide('setNotes', setNotes)
 provide('updateNote', updateNote)
 provide('deleteNote', deleteNote)
-provide('showDeleteAccountForm', () => showDialog('DeleteAccount'))
-provide('showPasswordForm', () => showDialog('PasswordForm'))
 provide('selectedNote', selectedNote)
+provide('showDialog', showDialog)
 
 </script>
 
 <template>
-  <main class="base-container">
+  <main class="main">
 
-    <header class="header" :class="{ 'header_blur': showingDialog }">
+    <Aside :showing-dialog="showingDialog" :dialogs="dialogs" v-if="isAuthenticated" />
 
-      <button
-      v-if="isAuthenticated"
-      class="button button_ml-auto button_icon button_bg-avatar"
-      type="button"
-      @click="showDialog('SettingsMenu')"
-      >SettingsMenu</button>
+    <Header :showing-dialog="showingDialog" :dialogs="dialogs" v-if="isAuthenticated" />
 
-      <LoginView v-if="!isAuthenticated" />
-
-      <ActionButtons
-      v-if="isAuthenticated"
-      @show-query-form="showDialog('SearchForm')"
-      @show-note-form="showDialog('NoteForm')" />
-
-    </header>
+    <LoginView v-else />
 
     <NoteList
     v-if="isAuthenticated && !showingDialog && notes.length"
@@ -91,19 +77,12 @@ provide('selectedNote', selectedNote)
     @read-note="(note: Note) => readNote(note)" />
 
     <Transition>
-      <dialog
-      class="dialog"
-      @click.self="dismissDialog"
-      :open="showingDialog"
-      v-if="showingDialog">
-        <component
-        :is="dialogChilds[dialogChild as keyof typeof dialogChilds]"
-        @dismiss-dialog="dismissDialog" />
+      <dialog class="dialog" open="true" @click.self="dismissDialog" v-if="showingDialog && dialog">
+        <component :is="dialogs[dialog]" @dismiss-dialog="dismissDialog" />
       </dialog>
     </Transition>
 
   </main>
-
 </template>
 
 <style>
@@ -118,15 +97,7 @@ provide('selectedNote', selectedNote)
   opacity: 0;
 }
 
-.header {
-  transition: filter .5s;
-}
-
-.header_blur {
-  filter: blur(4px);
-}
-
-.base-container {
+.main {
   height: 100vh;
   width: 100vw;
   padding: 6px;

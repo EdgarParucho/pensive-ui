@@ -7,8 +7,7 @@ const { isLoading, loginWithRedirect } = useAuth0()
 <template>
   <div>
     <div>
-      <div class="drop">
-      </div>
+      <div class="drop"></div>
       <button
       class="button button_absolute button_centered"
       :class="{ 'button_pulse': isLoading }"
@@ -18,22 +17,22 @@ const { isLoading, loginWithRedirect } = useAuth0()
       >{{ isLoading ? 'Loading' : 'Start' }}</button>
     </div>
     <footer class="actions-panel">
-    <div class="actions-panel__layer-1">
-      <div class="tabs">
-        <p>Edgar Parucho. (2025)</p>
-        <a
-        target="_blank"
-        href="https://linkedin.com/in/edgarparucho"
-        class="link"
-        >LinkedIn</a>
-        <a
-        target="_blank"
-        href="https://edgarparucho.github.io"
-        class="link"
-        >Website</a>
+      <div class="actions-panel__layer-1">
+        <div class="tabs">
+          <p>Edgar Parucho. (2025)</p>
+          <a
+          target="_blank"
+          href="https://linkedin.com/in/edgarparucho"
+          class="link"
+          >LinkedIn</a>
+          <a
+          target="_blank"
+          href="https://edgarparucho.github.io"
+          class="link"
+          >Website</a>
+        </div>
       </div>
-    </div>
-  </footer>
+    </footer>
   </div>
 </template>
 
