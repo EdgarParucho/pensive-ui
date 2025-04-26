@@ -7,6 +7,7 @@ import KeywordsForm from './KeywordsForm.vue'
 import ReferenceForm from './ReferenceForm.vue'
 import SuccessMark from './SuccessMark.vue'
 import Button from './Button.vue'
+import ActionsTab from './ActionsTab.vue'
 
 onMounted(() => {
   if (selectedNote.value) startFromPreset()
@@ -172,37 +173,31 @@ function closeForm() {
 
 
   <Transition>
-    <div
-    class="actions-panel"
-    :class="{ 'actions-panel_blur': alerting || showingSuccessMark || showingKeywordsForm || showingReferenceForm }">
-      <div class="actions-panel__layer-1">
-        <div class="tabs">
-          <Button
-          text="Back"
-          :modifiers="['button_bg-cancel']"
-          @click="closeForm" />
-          <Button
-          text="Save"
-          v-show="!formLocked"
-          :modifiers="['button_bg-check']"
-          :loading="loading"
-          :disabled="loading || invalidForm || (updating && unmodified)"
-          :highlight="!invalidForm && !unmodified"
-          @click="handleSubmit" />
-          <Button
-          v-if="formLocked"
-          :modifiers="['button_bg-edit']"
-          text="Update"
-          @click="unlockForm" />
-          <Button
-          text="Delete"
-          v-if="selectedNote"
-          :modifiers="['button_alert', 'button_bg-delete']"
-          :disabled="loading"
-          @click="onDelete" />
-        </div>
-      </div>
-    </div>
+    <ActionsTab :blur="alerting || showingSuccessMark || showingKeywordsForm || showingReferenceForm">
+      <Button
+      text="Cancel"
+      :modifiers="['button_bg-cancel']"
+      @click="closeForm" />
+      <Button
+      v-if="formLocked"
+      :modifiers="['button_bg-edit']"
+      text="Update"
+      @click="unlockForm" />
+      <Button
+      v-else
+      text="Submit"
+      :modifiers="['button_bg-check']"
+      :loading="loading"
+      :disabled="loading || invalidForm || (updating && unmodified)"
+      :highlight="!invalidForm && !unmodified"
+      @click="handleSubmit" />
+      <Button
+      text="Delete"
+      v-if="selectedNote"
+      :modifiers="['button_alert', 'button_bg-delete']"
+      :disabled="loading"
+      @click="onDelete" />
+    </ActionsTab>
   </Transition>
 
   <Transition>

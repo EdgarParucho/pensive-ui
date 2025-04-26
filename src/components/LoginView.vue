@@ -1,5 +1,6 @@
 <script setup lang='ts'>
 import { useAuth0 } from '@auth0/auth0-vue'
+import ActionsTab from './ActionsTab.vue';
 const { isLoading, loginWithRedirect } = useAuth0()
 </script>
 
@@ -14,23 +15,23 @@ const { isLoading, loginWithRedirect } = useAuth0()
       @click="() => loginWithRedirect()"
       >{{ isLoading ? 'Loading' : 'Start' }}</button>
     </div>
-    <footer class="actions-panel">
-      <div class="actions-panel__layer-1">
-        <div class="tabs">
-          <p>Edgar Parucho. (2025)</p>
-          <a
-          target="_blank"
-          href="https://linkedin.com/in/edgarparucho"
-          class="link"
-          >LinkedIn</a>
-          <a
-          target="_blank"
-          href="https://edgarparucho.github.io"
-          class="link"
-          >Website</a>
-        </div>
+    <ActionsTab>
+    <footer>
+      <p>Parucho Palma E. 2025.</p>
+      <div class="link-container">
+        <a
+        target="_blank"
+        href="https://edgarparucho.github.io"
+        class="link"
+        >Visit Website</a>
+        <a
+        target="_blank"
+        href="https://linkedin.com/in/edgarparucho"
+        class="link"
+        >Go to LinkedIn</a>
       </div>
     </footer>
+    </ActionsTab>
   </div>
 </template>
 
@@ -60,19 +61,6 @@ const { isLoading, loginWithRedirect } = useAuth0()
   }
 }
 
-.link {
-  color: var(--neutral);
-  text-decoration: none;
-  font-size: .9rem;
-  font-weight: 400;
-  transition: color .2s;
-}
-
-.link:hover {
-  text-decoration: cyan underline;
-  color: var(--light);
-}
-
 .start-button {
   height: 24px;
   width: 72px;
@@ -83,13 +71,50 @@ const { isLoading, loginWithRedirect } = useAuth0()
   background-color: var(--dark);
   position: absolute;
   top: calc(50% - 11px);
-  left: calc(50% - 32px);
+  left: calc(50% - 36px);
   cursor: pointer;
   transition: box-shadow .5s;
 }
 
 .start-button:focus, .start-button:hover {
   box-shadow: 0 -1px 8px cyan;
+}
+
+.start-button:disabled {
+  cursor: auto;
+  animation-name: pulse;
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
+  animation-timing-function: ease-in-out;
+  animation-direction: alternate;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 -1px 12px cyan;
+  }
+  100% {
+    box-shadow: 0 -1px 16px cyan;
+  }
+}
+
+.link-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.link {
+  color: var(--neutral);
+  text-decoration: none;
+  font-size: .8rem;
+  font-weight: 400;
+  transition: color .2s;
+}
+
+.link:hover {
+  text-decoration: cyan underline;
+  color: var(--light);
 }
 
 </style>

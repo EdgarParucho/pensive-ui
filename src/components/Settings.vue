@@ -15,7 +15,7 @@ function onBlur() {
 </script>
 
 <template>
-  <aside class="aside">
+  <aside class="aside" :class="{ 'aside_blur': showingDialog }">
     <Button
     text="Account Menu"
     :modifiers="['button_bg-avatar']"
@@ -52,6 +52,10 @@ function onBlur() {
   margin-left: auto;
   position: relative;
   transition: filter .5s;
+}
+
+.aside_blur {
+  filter: blur(4px);
 }
 
 .settings {

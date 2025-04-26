@@ -5,6 +5,7 @@ import { Update } from "../api/account"
 import Prompt from "./Prompt.vue"
 import SuccessMark from './SuccessMark.vue'
 import Button from "./Button.vue"
+import ActionsTab from './ActionsTab.vue'
 
 onMounted(focusOnField)
 
@@ -103,23 +104,19 @@ async function updatePassword() {
       </ul>
     </div>
   </form>
-  <div class="actions-panel" :class="{ 'actions-panel_blur': promptData.active || showingSuccessMark }">
-    <div class="actions-panel__layer-1">
-      <div class="tabs">
-        <Button
-        text="Cancel"
-        :modifiers="['button_bg-cancel']"
-        @click="emit('dismiss-dialog')" />
-        <Button
-        text="Confirm"
-        :modifiers="['button_bg-check']"
-        :highlight="!invalidForm"
-        :loading="loading"
-        :disabled="invalidForm || loading"
-        @click="updatePassword" />
-      </div>
-    </div>
-  </div>
+  <ActionsTab :blur="promptData.active || showingSuccessMark">
+    <Button
+    text="Cancel"
+    :modifiers="['button_bg-cancel']"
+    @click="emit('dismiss-dialog')" />
+    <Button
+    text="Confirm"
+    :modifiers="['button_bg-check']"
+    :highlight="!invalidForm"
+    :loading="loading"
+    :disabled="invalidForm || loading"
+    @click="updatePassword" />
+  </ActionsTab>
   <Transition>
     <dialog class="dialog" :open="promptData.active" v-if="promptData.active">
       <Prompt
@@ -240,7 +237,4 @@ async function updatePassword() {
   list-style: '✔ ';
 }
 
-.actions-panel {
-  left: 0;
-}
 </style>

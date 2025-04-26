@@ -106,65 +106,6 @@ provide('showDialog', showDialog)
   transition: filter .2s;
 }
 
-.actions-panel {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  height: 38px;
-  background-color: var(--darkest);
-}
-
-.actions-panel_blur {
-  filter: blur(4px)
-}
-
-.actions-panel__layer-1 {
-  position: absolute;
-  bottom: 0;
-  height: 20px;
-  width: 380px;
-  left: calc(50% - 190px);
-  background-color: var(--dark);
-  border-radius: 16px 16px 0 0;
-}
-
-.tabs {
-  position: relative;
-  margin: -19px auto 0;
-  height: 20px;
-  padding-top: 20px;
-  width: 340px;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  background-color: var(--dark);
-  border-radius: 16px 16px 0 0;
-}
-
-.tabs::before {
-  content: '';
-  height: 36px;
-  width: 36px;
-  border-radius: 50%;
-  background-color: var(--darkest);
-  position: absolute;
-  bottom: -18px;
-  left: -36px;
-  z-index: 20;
-}
-
-.tabs::after {
-  content: '';
-  height: 36px;
-  width: 36px;
-  border-radius: 50%;
-  background-color: var(--darkest);
-  position: absolute;
-  bottom: -18px;
-  right: -36px;
-  z-index: 20;
-}
-
 .dialog {
   height: 100vh;
   width: 100vw;

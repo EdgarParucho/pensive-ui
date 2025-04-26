@@ -5,7 +5,8 @@ import { Read } from '../api'
 import Note from '../models/Note'
 import Prompt from './Prompt.vue'
 import SuccessMark from './SuccessMark.vue'
-import Button from './Button.vue'
+import ActionsTab from './ActionsTab.vue'
+import Button from './Button.vue';
 
 onMounted(focusOnField)
 
@@ -80,24 +81,20 @@ async function search() {
     @keypress.enter="search">
   </form>
   <Transition>
-    <div class="actions-panel" :class="{ 'actions-panel_blur': alerting || showingSuccessMark }">
-      <div class="actions-panel__layer-1">
-        <div class="tabs">
-          <Button
-          text="Back"
-          :modifiers="['button_bg-cancel']"
-          :disabled="loading"
-          @click="emit('dismiss-dialog')" />
-          <Button
-          text="Search"
-          :modifiers="['button_bg-check']"
-          :loading="loading"
-          :highlight="!invalidQuery"
-          :disabled="loading || invalidQuery"
-          @click="search" />
-        </div>
-      </div>
-    </div>
+    <ActionsTab :blur="alerting || showingSuccessMark">
+      <Button
+      text="Cancel"
+      :modifiers="['button_bg-cancel']"
+      :disabled="loading"
+      @click="emit('dismiss-dialog')" />
+      <Button
+      text="Submit"
+      :modifiers="['button_bg-check']"
+      :loading="loading"
+      :highlight="!invalidQuery"
+      :disabled="loading || invalidQuery"
+      @click="search" />
+    </ActionsTab>
   </Transition>
   <Transition>
     <dialog class="dialog" :open="alerting" v-if="alerting">
