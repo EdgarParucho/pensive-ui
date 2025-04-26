@@ -33,12 +33,12 @@ function onCancel() {
     <div v-if="confirming" class="confirm-box__actions">
       <button
       type="button"
-      class="button"
+      class="button button_bg-cancel"
       @click="onCancel"
       >Cancel</button>
       <button
       type="button"
-      class="button button_alert"
+      class="button button_bg-delete button_alert"
       :class="{ 'button_pulse': loading }"
       :disabled="loading"
       @click="onConfirm">{{ loading ? 'Loading' : 'Confirm' }}</button>

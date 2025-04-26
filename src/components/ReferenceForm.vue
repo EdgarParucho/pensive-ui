@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import Button from './Button.vue'
 
 const props = defineProps(['reference', 'formLocked'])
 const emit = defineEmits(['dismiss', 'setReference'])
@@ -187,21 +188,20 @@ function fieldIsRequired(field: string) {
               v-model.trim="form.lastName"
               placeholder="Last name">
             </label>
-            <button
-            class="button button_rounded button_icon button_bg-add"
-            type="button"
+            <Button
+            text="Add author"
+            :modifiers="['button_bg-add']"
             :disabled="(form.firstName + form.lastName).length < 3"
-            @click="addAuthor">Add author</button>
+            @click="addAuthor" />
           </div>
           <ul class="author-container">
             <li v-for="author, i in authors" :key="i" class="author">
               <span>{{ author.fullName }}</span>
-              <button
+              <Button
+              text="Remove author"
               v-if="!props.formLocked"
-              type="button"
-              class="button button_rounded button_icon button_bg-x button_sm"
-              @click="removeAuthor(i)"
-              >Remove author</button>
+              :modifiers="['button_bg-x', 'button_sm']"
+              @click="removeAuthor(i)" />
             </li>
           </ul>
         </div>
@@ -314,31 +314,25 @@ function fieldIsRequired(field: string) {
        </p>
     </div>
     <div class="actions">
-      <button
-      type="button"
-      class="button button_rounded button_icon button_bg-cancel"
-      title="Dismiss"
-      @click="emit('dismiss')">
-      Dismiss</button>
-      <button
-      type="button"
-      title="Restore to original"
-      class="button button_rounded button_icon button_bg-undo"
+      <Button
+      text="Dismiss"
+      :modifiers="['button_bg-cancel']"
+      @click="emit('dismiss')" />
+      <Button
+      text="Restore"
+      :modifiers="['button_bg-undo']"
       :disabled="(entriesToString === props.reference) || !props.reference || props.formLocked"
-      @click="setOriginalValues">
-      Restore</button>
-      <button
+      @click="setOriginalValues" />
+      <Button
       :disabled="props.formLocked || !form.typeOfReference"
-      type="button"
-      class="button button_rounded button_icon button_bg-eraser"
-      title="Clear fields"
-      @click="clear">
-      Clear</button>
-      <button
-      type="submit"
-      class="button button_rounded button_icon button_bg-check"
-      :disabled="formLocked || (!entriesToString && !props.reference) || entriesToString === props.reference">
-      Confirm</button>
+      text="Clear"
+      :modifiers="['button_bg-eraser']"
+      @click="clear" />
+      <Button
+      text="Confirm"
+      @click="onSubmit"
+      :modifiers="['button_bg-check']"
+      :disabled="formLocked || (!entriesToString && !props.reference) || entriesToString === props.reference" />
     </div>
   </form>
 </template>
@@ -469,7 +463,7 @@ function fieldIsRequired(field: string) {
   border-radius: 2px;
   background-color: var(--darkest);
   position: absolute;
-  bottom: 44px;
+  bottom: 56px;
   left: 12px;
 }
 

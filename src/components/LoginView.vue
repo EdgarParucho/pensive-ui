@@ -1,6 +1,5 @@
 <script setup lang='ts'>
 import { useAuth0 } from '@auth0/auth0-vue'
-
 const { isLoading, loginWithRedirect } = useAuth0()
 </script>
 
@@ -9,9 +8,8 @@ const { isLoading, loginWithRedirect } = useAuth0()
     <div>
       <div class="drop"></div>
       <button
-      class="button button_absolute button_centered"
+      class="start-button"
       :class="{ 'button_pulse': isLoading }"
-      type="button"
       :disabled="isLoading"
       @click="() => loginWithRedirect()"
       >{{ isLoading ? 'Loading' : 'Start' }}</button>
@@ -37,6 +35,7 @@ const { isLoading, loginWithRedirect } = useAuth0()
 </template>
 
 <style scoped>
+
 .drop {
   position: absolute;
   top: 15%;
@@ -72,6 +71,25 @@ const { isLoading, loginWithRedirect } = useAuth0()
 .link:hover {
   text-decoration: cyan underline;
   color: var(--light);
+}
+
+.start-button {
+  height: 24px;
+  width: 72px;
+  border: 1px solid var(--dark);
+  border-radius: 2px;
+  color: var(--light);
+  outline: none;
+  background-color: var(--dark);
+  position: absolute;
+  top: calc(50% - 11px);
+  left: calc(50% - 32px);
+  cursor: pointer;
+  transition: box-shadow .5s;
+}
+
+.start-button:focus, .start-button:hover {
+  box-shadow: 0 -1px 8px cyan;
 }
 
 </style>

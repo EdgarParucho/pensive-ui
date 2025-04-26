@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue"
+import Button from './Button.vue'
 
 const props = defineProps(['keywords', 'formLocked'])
 const emit = defineEmits(['dismiss', 'setKeywords'])
@@ -43,11 +44,11 @@ function clear() {
       class="form__input"
       v-model.trim="keyword"
       placeholder="Type a keyword and press enter to add it.">
-      <button
+      <Button
       type="submit"
-      class="button button_rounded button_icon button_bg-add"
+      :modifiers="['button_bg-add']"
       :disabled="keyword.length < 3"
-      >Add</button>
+      text=">Add" />
     </fieldset>
     <ul class="keyword-container">
       <li
@@ -56,41 +57,33 @@ function clear() {
       class="keyword"
       >
         <span>{{ keyword }}</span>
-        <button
+        <Button
+        text="Remove keyword"
+        :modifiers="['button_bg-x', 'button_sm']"
         @click="removeKeyword(keyword)"
-        type="button"
-        class="button button_rounded button_icon button_bg-x button_sm"
-        v-if="!props.formLocked"
-        >Remove keyword</button>
+        v-if="!props.formLocked" />
       </li>
     </ul>
     <div class="actions">
-      <button
-      type="button"
-      class="button button_rounded button_icon button_bg-cancel"
-      title="Dismiss"
-      @click="emit('dismiss')">
-      Dismiss</button>
-      <button
-      type="button"
-      title="Restore to original"
-      class="button button_rounded button_icon button_bg-undo"
+      <Button
+      text="Dismiss"
+      :modifiers="['button_bg-cancel']"
+      @click="emit('dismiss')" />
+      <Button
+      text="Restore"
+      :modifiers="['button_bg-undo']"
       :disabled="(keywords === props.keywords) || !props.keywords || props.formLocked"
-      @click="setOriginalValues">
-      Restore</button>
-      <button
+      @click="setOriginalValues" />
+      <Button
+      text="Clear"
       :disabled="props.formLocked || !keywords"
-      type="button"
-      class="button button_rounded button_icon button_bg-eraser"
-      title="Clear fields"
-      @click="clear">
-      Clear</button>
-      <button
-      type="button"
-      class="button button_rounded button_icon button_bg-check"
+      :modifiers="['button_bg-eraser']"
+      @click="clear" />
+      <Button
+      text="Confirm"
+      :modifiers="['button_bg-check']"
       :disabled="formLocked || (!keywords && !props.keywords) || keywords === props.keywords"
-      @click="emit('setKeywords', keywords)">
-      Confirm</button>
+      @click="emit('setKeywords', keywords)" />
     </div>
   </form>
 </template>

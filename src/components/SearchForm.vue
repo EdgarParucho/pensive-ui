@@ -2,9 +2,10 @@
 import { ref, computed, onMounted, inject } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
 import { Read } from '../api'
+import Note from '../models/Note'
 import Prompt from './Prompt.vue'
 import SuccessMark from './SuccessMark.vue'
-import Note from '../models/Note'
+import Button from './Button.vue'
 
 onMounted(focusOnField)
 
@@ -82,19 +83,18 @@ async function search() {
     <div class="actions-panel" :class="{ 'actions-panel_blur': alerting || showingSuccessMark }">
       <div class="actions-panel__layer-1">
         <div class="tabs">
-          <button
-          type="button"
-          class="button button_rounded button_icon button_bg-cancel"
+          <Button
+          text="Back"
+          :modifiers="['button_bg-cancel']"
           :disabled="loading"
-          @click="emit('dismiss-dialog')"
-          >Back</button>
-          <button
-          type="button"
-          class="button button_rounded button_icon button_bg-check"
-          :class="{ 'button_pulse': loading, 'button_highlight': !invalidQuery }"
+          @click="emit('dismiss-dialog')" />
+          <Button
+          text="Search"
+          :modifiers="['button_bg-check']"
+          :loading="loading"
+          :highlight="!invalidQuery"
           :disabled="loading || invalidQuery"
-          @click="search"
-          >Search</button>
+          @click="search" />
         </div>
       </div>
     </div>

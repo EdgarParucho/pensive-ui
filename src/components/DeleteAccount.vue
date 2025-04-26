@@ -4,6 +4,7 @@ import { useAuth0 } from "@auth0/auth0-vue"
 import { Destroy } from "../api/account"
 import Prompt from "./Prompt.vue"
 import SuccessMark from './SuccessMark.vue'
+import Button from "./Button.vue"
 
 onMounted(focusOnField)
 
@@ -69,17 +70,17 @@ async function deleteAccount() {
   <div class="actions-panel" :class="{ 'actions-panel_blur': promptData.active }">
     <div class="actions-panel__layer-1">
       <div class="tabs">
-        <button
-        class="button button_rounded button_icon button_bg-cancel"
-        type="button"
-        @click="emit('dismiss-dialog')"
-        >Back</button>
-        <button
-        type="submit"
-        class="button button_rounded button_icon button_bg-check"
-        :class="{ 'button_pulse': loading, 'button_highlight': !invalidForm }"
-        :disabled="loading || invalidForm"
-        >Confirm</button>
+        <Button
+        text="Cancel"
+        :modifiers="['button_bg-cancel']"
+        @click="emit('dismiss-dialog')" />
+        <Button
+        text="Confirm"
+        :modifiers="['button_bg-check']"
+        :highlight="!invalidForm"
+        :loading="loading"
+        :disabled="invalidForm || loading"
+        @click="deleteAccount" />
       </div>
     </div>
   </div>

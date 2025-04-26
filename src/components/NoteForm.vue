@@ -6,6 +6,7 @@ import Prompt from './Prompt.vue'
 import KeywordsForm from './KeywordsForm.vue'
 import ReferenceForm from './ReferenceForm.vue'
 import SuccessMark from './SuccessMark.vue'
+import Button from './Button.vue'
 
 onMounted(() => {
   if (selectedNote.value) startFromPreset()
@@ -148,25 +149,23 @@ function closeForm() {
         <textarea
         id="body"
         class="form__textarea"
-        :placeholder="`# Title\n\nThe body of the note...`"
         required
         autocomplete="off"
         v-model.trim="note.body"
+        :placeholder="`# Title\n\nThe body of the note...`"
         :disabled="loading || formLocked"></textarea>
       </div>
 
     </fieldset>
     <div class="detail-buttons">
-      <button
-      class="button button_dark button_rounded button_icon button_bg-tags"
-      type="button"
-      @click="showingKeywordsForm = true"
-      >Add keywords</button>
-      <button
-      class="button button_dark button_rounded button_icon button_bg-author"
-      type="button"
-      @click="showingReferenceForm = true"
-      >Add reference</button>
+      <Button
+      text="Keywords"
+      :modifiers="['button_bg-tags']"
+      @click="showingKeywordsForm = true" />
+      <Button
+      text="Reference"
+      :modifiers="['button_bg-author']"
+      @click="showingReferenceForm = true" />
     </div>
 
   </form>
@@ -178,32 +177,29 @@ function closeForm() {
     :class="{ 'actions-panel_blur': alerting || showingSuccessMark || showingKeywordsForm || showingReferenceForm }">
       <div class="actions-panel__layer-1">
         <div class="tabs">
-          <button
-          class="button button_rounded button_icon button_bg-cancel"
-          type="button"
-          @click="closeForm"
-          >Back</button>
-          <button
+          <Button
+          text="Back"
+          :modifiers="['button_bg-cancel']"
+          @click="closeForm" />
+          <Button
+          text="Save"
           v-show="!formLocked"
-          class="button button_rounded button_icon button_bg-check"
-          type="button"
+          :modifiers="['button_bg-check']"
+          :loading="loading"
           :disabled="loading || invalidForm || (updating && unmodified)"
-          :class="{ 'button_pulse': loading, 'button_highlight': !invalidForm && !unmodified }"
-          @click="handleSubmit"
-          >Save</button>
-          <button
+          :highlight="!invalidForm && !unmodified"
+          @click="handleSubmit" />
+          <Button
           v-if="formLocked"
-          class="button button_rounded button_icon button_bg-edit"
-          type="button"
-          @click="unlockForm"
-          >Update</button>
-          <button
+          :modifiers="['button_bg-edit']"
+          text="Update"
+          @click="unlockForm" />
+          <Button
+          text="Delete"
           v-if="selectedNote"
-          class="button button_alert button_rounded button_icon button_bg-delete"
-          type="button"
-          @click="onDelete"
+          :modifiers="['button_alert', 'button_bg-delete']"
           :disabled="loading"
-          >Delete</button>
+          @click="onDelete" />
         </div>
       </div>
     </div>
