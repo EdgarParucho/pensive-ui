@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import Button from './Button.vue'
+import Button from '../layout/Button.vue'
 
 const props = defineProps(['reference', 'formLocked'])
 const emit = defineEmits(['dismiss', 'setReference'])

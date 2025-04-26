@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { inject } from 'vue'
-import Button from './Button.vue'
+import Button from '../layout/Button.vue'
 const props = defineProps(['showingDialog', 'dialogs'])
 const showDialog = inject('showDialog') as (dialog: keyof typeof props.dialogs) => void
 </script>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { inject, ref } from 'vue';
 import { useAuth0 } from '@auth0/auth0-vue'
-import Button from './Button.vue';
+import Button from '../layout/Button.vue';
 
 const props = defineProps(['showingDialog', 'dialogs'])
 const showDialog = inject('showDialog') as (dialog: keyof typeof props.dialogs) => void

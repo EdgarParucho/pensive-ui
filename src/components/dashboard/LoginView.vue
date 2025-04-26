@@ -1,6 +1,6 @@
 <script setup lang='ts'>
 import { useAuth0 } from '@auth0/auth0-vue'
-import ActionsTab from './ActionsTab.vue';
+import ActionsTab from '../layout/ActionsTab.vue';
 const { isLoading, loginWithRedirect } = useAuth0()
 </script>
 

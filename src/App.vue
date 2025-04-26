@@ -2,14 +2,14 @@
 import { ref, provide } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
 import Note from './models/Note.ts'
-import LoginView from './components/LoginView.vue'
-import Header from './components/Header.vue'
-import Settings from './components/Settings.vue'
-import NoteForm from './components/NoteForm.vue'
-import SearchForm from './components/SearchForm.vue'
-import PasswordForm from './components/PasswordForm.vue'
-import DeleteAccount from './components/DeleteAccount.vue'
-import NoteList from './components/NoteList.vue'
+import LoginView from './components/dashboard/LoginView.vue'
+import Header from './components/dashboard/Header.vue'
+import Settings from './components/account/Settings.vue'
+import NoteForm from './components/note/NoteForm.vue'
+import SearchForm from './components/dashboard/SearchForm.vue'
+import PasswordForm from './components/account/PasswordForm.vue'
+import DeleteAccount from './components/account/DeleteAccount.vue'
+import NoteList from './components/dashboard/NoteList.vue'
 
 const { isAuthenticated } = useAuth0()
 

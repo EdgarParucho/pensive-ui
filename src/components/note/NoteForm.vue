@@ -1,13 +1,13 @@
 <script setup lang='ts'>
 import { ref, computed, onMounted, inject, nextTick, type Ref } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
-import Note from '../models/Note.ts'
-import Prompt from './Prompt.vue'
+import Note from '../../models/Note.ts'
+import Prompt from '../layout/Prompt.vue'
 import KeywordsForm from './KeywordsForm.vue'
 import ReferenceForm from './ReferenceForm.vue'
-import SuccessMark from './SuccessMark.vue'
-import Button from './Button.vue'
-import ActionsTab from './ActionsTab.vue'
+import SuccessMark from '../layout/SuccessMark.vue'
+import Button from '../layout/Button.vue'
+import ActionsTab from '../layout/ActionsTab.vue'
 
 onMounted(() => {
   if (selectedNote.value) startFromPreset()

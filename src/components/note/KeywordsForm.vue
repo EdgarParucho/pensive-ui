@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue"
-import Button from './Button.vue'
+import Button from '../layout/Button.vue'
 
 const props = defineProps(['keywords', 'formLocked'])
 const emit = defineEmits(['dismiss', 'setKeywords'])

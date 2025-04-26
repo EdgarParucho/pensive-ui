@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, nextTick } from "vue"
 import { useAuth0 } from "@auth0/auth0-vue"
-import { Update } from "../api/account"
-import Prompt from "./Prompt.vue"
-import SuccessMark from './SuccessMark.vue'
-import Button from "./Button.vue"
-import ActionsTab from './ActionsTab.vue'
+import { Update } from "../../api/account"
+import Prompt from "../layout/Prompt.vue"
+import SuccessMark from '../layout/SuccessMark.vue'
+import Button from "../layout/Button.vue"
+import ActionsTab from '../layout/ActionsTab.vue'
 
 onMounted(focusOnField)
 

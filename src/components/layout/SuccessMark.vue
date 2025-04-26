@@ -4,7 +4,7 @@
 <template>
   <dialog class="dialog" open="true">
     <div class="experiment">
-      <img class="experiment__check" src="../assets/icons8-check-24.png"></img>
+      <img class="experiment__check" src="../../assets/icons8-check-24.png"></img>
     </div>
   </dialog>
 </template>

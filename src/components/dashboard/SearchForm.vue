@@ -1,12 +1,12 @@
 <script setup lang='ts'>
 import { ref, computed, onMounted, inject } from 'vue'
 import { useAuth0 } from '@auth0/auth0-vue'
-import { Read } from '../api'
-import Note from '../models/Note'
-import Prompt from './Prompt.vue'
-import SuccessMark from './SuccessMark.vue'
-import ActionsTab from './ActionsTab.vue'
-import Button from './Button.vue';
+import { Read } from '../../api'
+import Note from '../../models/Note'
+import Prompt from '../layout/Prompt.vue'
+import SuccessMark from '../layout/SuccessMark.vue'
+import ActionsTab from '../layout/ActionsTab.vue'
+import Button from '../layout/Button.vue';
 
 onMounted(focusOnField)
 

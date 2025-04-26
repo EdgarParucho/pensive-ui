@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import Button from './Button.vue';
 
 const emit = defineEmits(['confirm', 'dismiss'])
 
@@ -31,17 +32,17 @@ function onCancel() {
     <h3 class="confirm-box__title">{{ title }}</h3>
     <p class="confirm-box__message">{{ message }}</p>
     <div v-if="confirming" class="confirm-box__actions">
-      <button
-      type="button"
-      class="button button_bg-cancel"
-      @click="onCancel"
-      >Cancel</button>
-      <button
-      type="button"
-      class="button button_bg-delete button_alert"
-      :class="{ 'button_pulse': loading }"
+      <Button
+      text="Cancel"
+      :modifiers="['button_bg-cancel']"
       :disabled="loading"
-      @click="onConfirm">{{ loading ? 'Loading' : 'Confirm' }}</button>
+      @click="onCancel" />
+      <Button
+      :text="loading ? 'Loading' : 'Confirm'"
+      :modifiers="['button_bg-delete', 'button_alert']"
+      :loading="loading"
+      :disabled="loading"
+      @click="onConfirm" />
     </div>
   </div>
 </template>
